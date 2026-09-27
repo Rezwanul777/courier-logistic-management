@@ -10,8 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "format:check": "npx @biomejs/biome format ./src",
     "format:fix": "npx @biomejs/biome format --write ./src",
-      "lint:check": "npx @biomejs/biome lint ./src",
-        "lint:fix": "npx @biomejs/biome lint --write ./src",
+    "lint:check": "npx @biomejs/biome lint ./src",
+    "lint:fix": "npx @biomejs/biome lint --write ./src",
     "postinstall": "prisma skills sync || exit 0"
   },
   "keywords": [],
@@ -26,9 +26,12 @@
     "cors": "^2.8.6",
     "dotenv": "^18.0.4",
     "express": "^5.2.1",
+    "google-auth-library": "^11.1.0",
     "http-status": "^2.1.0",
     "jsonwebtoken": "^9.0.3",
-    "pg": "^8.23.0"
+    "nodemailer": "^10.0.10",
+    "pg": "^8.23.0",
+    "redis": "^6.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
