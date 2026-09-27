@@ -1,6 +1,10 @@
 enum Role {
-  SUPER_ADMIN
+  CUSTOMER
+  COURIER
   ADMIN
-  DOCTOR
-  PATIENT
+}
+
+enum AuthProvider {
+  CREDENTIAL
+  GOOGLE
 }

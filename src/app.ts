@@ -1,17 +1,33 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express, { Application, Request, Response } from "express";
+import express, {
+	type Application,
+	type Request,
+	type Response,
+} from "express";
+import { rateLimit } from "express-rate-limit";
+import helmet from "helmet";
 import httpStatus from "http-status";
 import config from "./app/config";
-
-import { notFound } from "./app/middleware/notFound";
+import { checkRequestOrigin } from "./app/middleware/cookieAuth";
 import { globalErrorHandler } from "./app/middleware/globalErrorhandler";
+import { notFound } from "./app/middleware/notFound";
+import { AuthRoutes } from "./app/modules/auth/auth.routes";
 
 const app: Application = express();
+app.use(helmet());
+app.use(
+	rateLimit({
+		windowMs: 15 * 60 * 1000,
+		limit: 300,
+		standardHeaders: "draft-8",
+		legacyHeaders: false,
+	}),
+);
 
 app.use(
 	cors({
-		origin: config.frontend_url,
+		origin: config.frontend_url || false,
 		credentials: true,
 	}),
 );
@@ -20,16 +36,18 @@ app.use(
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware to parse JSON bodies
-app.use(express.json());
+app.use(express.json({ limit: "32kb" }));
 app.use(cookieParser());
+app.use(checkRequestOrigin);
 
-// app.use('/api/v1/auth', AuthRoutes)
+app.use("/api/v1/auth", AuthRoutes);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
 	res.status(httpStatus.OK).json({
 		success: true,
-		message: "Welcome to PH Healthcare System Backend",
+		message: "Courier & Logistics API",
+		data: null,
 	});
 });
 
@@ -37,3 +55,4 @@ app.use(globalErrorHandler);
 app.use(notFound);
 
 export default app;
+
