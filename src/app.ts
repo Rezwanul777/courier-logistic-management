@@ -15,6 +15,7 @@ import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/modules/auth/auth.routes";
 import { AdminUserRoutes, UserRoutes } from "./app/modules/users/user.routes";
 import { AdminZoneRoutes, ZoneRoutes } from "./app/modules/zone/zone.route";
+import { AdminHubRoutes, HubRoutes } from "./app/modules/hub/hub.route";
 
 const app: Application = express();
 app.use(helmet());
@@ -47,6 +48,8 @@ app.use("/api/v1/users", UserRoutes);
 app.use("/api/v1/admin", AdminUserRoutes);
 app.use("/api/v1/zones", ZoneRoutes);
 app.use("/api/v1/admin/zones", AdminZoneRoutes);
+app.use("/api/v1/hubs", HubRoutes);
+app.use("/api/v1/admin/hubs", AdminHubRoutes);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
