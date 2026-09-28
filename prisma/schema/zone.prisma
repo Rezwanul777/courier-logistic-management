@@ -1,0 +1,15 @@
+model Zone {
+  id Int @id @default(autoincrement())
+
+  code String @unique
+  name String
+
+  hubs Hub[]
+
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([deletedAt])
+}

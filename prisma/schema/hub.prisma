@@ -1,0 +1,17 @@
+model Hub {
+  id Int @id @default(autoincrement())
+
+  code    String @unique
+  name    String
+  address String
+
+  zoneId Int
+  zone   Zone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([zoneId])
+  @@index([deletedAt])
+}

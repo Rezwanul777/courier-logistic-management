@@ -14,6 +14,7 @@ import { globalErrorHandler } from "./app/middleware/globalErrorhandler";
 import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/modules/auth/auth.routes";
 import { AdminUserRoutes, UserRoutes } from "./app/modules/users/user.routes";
+import { AdminZoneRoutes, ZoneRoutes } from "./app/modules/zone/zone.route";
 
 const app: Application = express();
 app.use(helmet());
@@ -43,7 +44,9 @@ app.use(checkRequestOrigin);
 
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/users", UserRoutes);
-app.use("/api/v1/admin/users", AdminUserRoutes);
+app.use("/api/v1/admin", AdminUserRoutes);
+app.use("/api/v1/zones", ZoneRoutes);
+app.use("/api/v1/admin/zones", AdminZoneRoutes);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
