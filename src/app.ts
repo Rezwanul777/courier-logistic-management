@@ -13,6 +13,7 @@ import { checkRequestOrigin } from "./app/middleware/cookieAuth";
 import { globalErrorHandler } from "./app/middleware/globalErrorhandler";
 import { notFound } from "./app/middleware/notFound";
 import { AuthRoutes } from "./app/modules/auth/auth.routes";
+import { AdminUserRoutes, UserRoutes } from "./app/modules/users/user.routes";
 
 const app: Application = express();
 app.use(helmet());
@@ -41,6 +42,8 @@ app.use(cookieParser());
 app.use(checkRequestOrigin);
 
 app.use("/api/v1/auth", AuthRoutes);
+app.use("/api/v1/users", UserRoutes);
+app.use("/api/v1/admin/users", AdminUserRoutes);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {

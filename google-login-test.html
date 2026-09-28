@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Google Login Test</title>
+  </head>
+  <body>
+    <h2>Google Login Test</h2>
+
+    <div
+      id="g_id_onload"
+      data-client_id="79826163264-bfm0s4mancrfov9u2c1pqkkadjdfeiv7.apps.googleusercontent.com"
+      data-callback="handleGoogleLogin"
+      data-auto_prompt="false"
+    ></div>
+
+    <div
+      class="g_id_signin"
+      data-type="standard"
+    ></div>
+
+    <p>Sign in করার পর নিচের JSON Postman body-তে দিন:</p>
+
+    <textarea
+      id="result"
+      rows="12"
+      cols="85"
+      readonly
+    ></textarea>
+
+    <script>
+      function handleGoogleLogin(response) {
+        document.getElementById("result").value = JSON.stringify(
+          { idToken: response.credential },
+          null,
+          2
+        );
+      }
+    </script>
+
+    <script
+      src="https://accounts.google.com/gsi/client"
+      async
+    ></script>
+  </body>
+</html>
