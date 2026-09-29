@@ -101,8 +101,202 @@ const getMyShipments = async (userId: number, query: any) => {
   };
 };
 
+const getShipmentById = async (shipmentId: number, userId: number) => {
+  const shipment = await prisma.shipment.findFirst({
+    where: {
+      id: shipmentId,
+      customerId: userId,
+      deletedAt: null,
+    },
+
+    include: {
+      originHub: {
+        include: {
+          zone: true,
+        },
+      },
+
+      destinationHub: {
+        include: {
+          zone: true,
+        },
+      },
+
+      trackingEvents: {
+        orderBy: {
+          occurredAt: "desc",
+        },
+      },
+    },
+  });
+
+  if (!shipment) {
+    throw new Error("Shipment not found");
+  }
+
+  return shipment;
+};
+
+const updateShipment = async (
+  shipmentId: number,
+  userId: number,
+  payload: any,
+) => {
+  const shipment = await prisma.shipment.findFirst({
+    where: {
+      id: shipmentId,
+      customerId: userId,
+      deletedAt: null,
+    },
+  });
+
+  if (!shipment) {
+    throw new Error("Shipment not found");
+  }
+
+  if (shipment.status !== "DRAFT") {
+    throw new Error("Only draft shipment can be updated");
+  }
+
+  return prisma.shipment.update({
+    where: {
+      id: shipmentId,
+    },
+
+    data: payload,
+  });
+};
+
+const deleteShipment = async (shipmentId: number, userId: number) => {
+  const shipment = await prisma.shipment.findFirst({
+    where: {
+      id: shipmentId,
+      customerId: userId,
+      deletedAt: null,
+    },
+  });
+
+  if (!shipment) {
+    throw new Error("Shipment not found");
+  }
+
+  if (shipment.status !== "DRAFT") {
+    throw new Error("Only draft shipment can be deleted");
+  }
+
+  return prisma.shipment.update({
+    where: {
+      id: shipmentId,
+    },
+
+    data: {
+      deletedAt: new Date(),
+    },
+  });
+};
+
+
+
+const getTrackingHistory = async (shipmentId: number, userId: number) => {
+  const shipment = await prisma.shipment.findFirst({
+    where: {
+      id: shipmentId,
+      customerId: userId,
+      deletedAt: null,
+    },
+  });
+
+  if (!shipment) {
+    throw new Error("Shipment not found");
+  }
+
+  return prisma.trackingEvent.findMany({
+    where: {
+      shipmentId,
+    },
+
+    orderBy: {
+      occurredAt: "asc",
+    },
+  });
+};
+
+
+// admin function to get all shipments with pagination and filtering
+
+const getAllShipments = async (query: any) => {
+  const page = Number(query.page) || 1;
+
+  const limit = Number(query.limit) || 10;
+
+  const skip = (page - 1) * limit;
+
+  const where: any = {
+    deletedAt: null,
+  };
+
+  if (query.status) {
+    where.status = query.status;
+  }
+
+  if (query.search) {
+    where.trackingCode = {
+      contains: query.search,
+      mode: "insensitive",
+    };
+  }
+
+  const [items, total] = await prisma.$transaction([
+    prisma.shipment.findMany({
+      where,
+
+      skip,
+
+      take: limit,
+
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+
+        originHub: true,
+
+        destinationHub: true,
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+    }),
+
+    prisma.shipment.count({
+      where,
+    }),
+  ]);
+
+  return {
+    items,
+
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
 export const ShipmentService = {
   createShipment,
 
   getMyShipments,
+  getShipmentById,
+  getTrackingHistory,
+  updateShipment,
+  deleteShipment,
+  getAllShipments,
 };

@@ -17,7 +17,7 @@ import { AdminUserRoutes, UserRoutes } from "./app/modules/users/user.routes";
 import { AdminZoneRoutes, ZoneRoutes } from "./app/modules/zone/zone.route";
 import { AdminHubRoutes, HubRoutes } from "./app/modules/hub/hub.route";
 import { RateCardRoutes } from "./app/modules/rateCard/rateCard.route";
-import { ShipmentRoutes } from "./app/modules/shipment/shipment.route";
+import { AdminShipmentRoutes, ShipmentRoutes } from "./app/modules/shipment/shipment.route";
 
 const app: Application = express();
 app.use(helmet());
@@ -54,6 +54,7 @@ app.use("/api/v1/hubs", HubRoutes);
 app.use("/api/v1/admin/hubs", AdminHubRoutes);
 app.use("/api/v1/admin/rates", RateCardRoutes);
 app.use("/api/v1/shipments", ShipmentRoutes);
+app.use("/api/v1/admin/shipments", AdminShipmentRoutes);
 
 // Basic rout
 app.get("/", async (req: Request, res: Response) => {
