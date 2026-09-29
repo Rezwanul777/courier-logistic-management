@@ -22,8 +22,18 @@ import {
   ShipmentRoutes,
 } from "./app/modules/shipment/shipment.route";
 import { PaymentRoutes } from "./app/modules/payment/payment.route";
+import { PaymentController } from "./app/modules/payment/payment.controller";
 
 const app: Application = express();
+
+app.post(
+  "/api/v1/payments/webhook",
+  express.raw({
+    type: "application/json",
+  }),
+  PaymentController.webhook,
+);
+
 app.use(helmet());
 app.use(
   rateLimit({

@@ -34,7 +34,24 @@ const getPayment = async (req: Request, res: Response) => {
   });
 };
 
+const webhook = async (req: Request, res: Response) => {
+  const signature = req.headers["stripe-signature"] as string;
+
+  const result = await PaymentService.handleWebhook(
+    req.body,
+
+    signature,
+  );
+
+  res.json({
+    received: true,
+
+    data: result,
+  });
+};
+
 export const PaymentController = {
   createCheckout,
   getPayment,
+  webhook,
 };
