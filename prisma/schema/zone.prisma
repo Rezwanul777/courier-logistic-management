@@ -6,6 +6,10 @@ model Zone {
 
   hubs Hub[]
 
+  originRates RateCard[] @relation("OriginRateCards")
+
+  destinationRates RateCard[] @relation("DestinationRateCards")
+
   deletedAt DateTime?
 
   createdAt DateTime @default(now())

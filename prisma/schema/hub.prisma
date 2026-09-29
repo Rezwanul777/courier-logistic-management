@@ -5,9 +5,13 @@ model Hub {
   name    String
   address String
 
-  zoneId Int
-  zone   Zone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  zoneId    Int
+  zone      Zone      @relation(fields: [zoneId], references: [id], onDelete: Restrict)
   deletedAt DateTime?
+
+  originShipments Shipment[] @relation("OriginShipments")
+
+  destinationShipments Shipment[] @relation("DestinationShipments")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,0 +1,62 @@
+model Shipment {
+  id Int @id @default(autoincrement())
+
+  trackingCode String @unique
+
+  customerId Int
+
+  customer User @relation("CustomerShipments", fields: [customerId], references: [id])
+
+  originHubId Int
+
+  originHub Hub @relation("OriginShipments", fields: [originHubId], references: [id])
+
+  destinationHubId Int
+
+  destinationHub Hub @relation("DestinationShipments", fields: [destinationHubId], references: [id])
+
+  description String?
+
+  weight Float
+
+  pickupAddress Json
+
+  recipient Json
+
+  quotedAmountMinor Int
+
+  currency String
+
+  status ShipmentStatus @default(DRAFT)
+
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  trackingEvents TrackingEvent[]
+
+  @@index([customerId, createdAt])
+  @@index([status, createdAt])
+}
+
+model TrackingEvent {
+  id Int @id @default(autoincrement())
+
+  shipmentId Int
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  previousStatus ShipmentStatus?
+
+  newStatus ShipmentStatus
+
+  actorId Int?
+
+  reason String?
+
+  occurredAt DateTime @default(now())
+
+  @@index([shipmentId, occurredAt])
+}

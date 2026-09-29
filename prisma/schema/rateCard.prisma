@@ -1,0 +1,30 @@
+model RateCard {
+  id Int @id @default(autoincrement())
+
+  originZoneId      Int
+  destinationZoneId Int
+
+  originZone Zone @relation("OriginRateCards", fields: [originZoneId], references: [id])
+
+  destinationZone Zone @relation("DestinationRateCards", fields: [destinationZoneId], references: [id])
+
+  weightFrom Float
+  weightTo   Float
+
+  baseAmountMinor Int
+
+  currency String @default("BDT")
+
+  version Int @default(1)
+
+  isActive Boolean @default(true)
+
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([originZoneId, destinationZoneId])
+  @@index([isActive, deletedAt])
+}
