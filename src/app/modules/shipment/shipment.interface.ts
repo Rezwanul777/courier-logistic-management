@@ -15,3 +15,15 @@ export interface ICreateShipment {
 
   currency: string;
 }
+
+export interface IUpdateShipment {
+
+  description?: string;
+
+  weight?: number;
+
+  pickupAddress?: any;
+
+  recipient?: any;
+
+}
