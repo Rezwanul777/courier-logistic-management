@@ -36,6 +36,7 @@ model Shipment {
   updatedAt DateTime @updatedAt
 
   trackingEvents TrackingEvent[]
+  payment    Payment?
 
   @@index([customerId, createdAt])
   @@index([status, createdAt])
@@ -55,6 +56,8 @@ model TrackingEvent {
   actorId Int?
 
   reason String?
+
+
 
   occurredAt DateTime @default(now())
 

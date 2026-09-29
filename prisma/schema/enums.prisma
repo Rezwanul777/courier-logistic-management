@@ -25,3 +25,17 @@ enum ShipmentStatus {
   CANCEL_REQUESTED
   CANCELLED
 }
+
+enum PaymentStatus {
+  UNPAID
+
+  CHECKOUT_PENDING
+
+  PAID
+
+  REFUND_PENDING
+
+  REFUNDED
+
+  FAILED
+}

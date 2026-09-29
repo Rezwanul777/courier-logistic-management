@@ -1,0 +1,11 @@
+model WebhookEvent {
+  id Int @id @default(autoincrement())
+
+  providerEventId String @unique
+
+  type String
+
+  processedAt DateTime @default(now())
+
+  outcome String
+}
