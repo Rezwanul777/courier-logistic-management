@@ -16,6 +16,8 @@ model User {
   sessions          RefreshSession[]
   auditLogs         AuditLog[]
   customerShipments Shipment[]       @relation("CustomerShipments")
+  courierTasks CourierTask[] @relation("CourierTasks")
+  assignedTasks CourierTask[] @relation("AssignedTasks")
 
   @@index([role, isActive])
 }

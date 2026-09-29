@@ -1,0 +1,33 @@
+model CourierTask {
+
+  id Int @id @default(autoincrement())
+
+
+  shipmentId Int
+
+
+  shipment Shipment @relation(
+    fields:[shipmentId],
+    references:[id]
+  )
+
+
+  courierId Int
+
+
+  courier User @relation(
+    "CourierTasks",
+    fields:[courierId],
+    references:[id]
+  )
+
+
+  assignedById Int
+
+
+  assignedBy User @relation(
+    "AssignedTasks",
+    fields:[assignedById],
+    references:[id]
+  )
+}

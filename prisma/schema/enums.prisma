@@ -39,3 +39,21 @@ enum PaymentStatus {
 
   FAILED
 }
+
+enum TaskType {
+  PICKUP
+
+  DELIVERY
+
+  RETURN
+}
+
+enum TaskStatus {
+  ASSIGNED
+
+  ACCEPTED
+
+  COMPLETED
+
+  FAILED
+}
