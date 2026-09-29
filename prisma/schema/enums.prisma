@@ -41,14 +41,18 @@ enum PaymentStatus {
 }
 
 enum TaskType {
+
   PICKUP
 
   DELIVERY
 
   RETURN
+
 }
 
+
 enum TaskStatus {
+
   ASSIGNED
 
   ACCEPTED
@@ -56,4 +60,7 @@ enum TaskStatus {
   COMPLETED
 
   FAILED
+
 }
+
+
