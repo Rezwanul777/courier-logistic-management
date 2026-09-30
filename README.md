@@ -572,75 +572,74 @@ prisma
 
 ---
 
-# ⚙️ Installation
 
 
-Clone repository:
+## ⚙️ Installation
+
+### Clone Repository
 
 ```bash
 git clone https://github.com/Rezwanul777/courier-logistic-management.git
-
 npm install
-
 cp .env.example .env
+npx prisma generate
 
-📌 API Documentation
+npx prisma migrate dev
+
+npm run dev
+
+
+---
+
+তারপর API section আলাদা:
+
+```md
+## 📌 API Documentation
+
 Base URL:https://coureir-logistic.vercel.app/api/v1
 
-/auth
 
+### Authentication
+/auth
+### User
 /users
 
+### Admin User
 /admin/users
 
-/zones
 
+### Zone
+/zones
+### Hub
 /hubs
 
+### Shipment
 /shipments
 
-/payments
-
-/couriers
-
+###Tasks
 /tasks
+
+###Delivery
 
 /delivery
 
+###hubtransfer
 /hub-transfers
 
-🔮 Future Improvements
-Possible improvements:
+## 🔮 Future Improvements
+
 - Automatic courier allocation
 - Route optimization
 - Live GPS tracking
 - Delivery analytics dashboard
 - Refund management
 - Mobile courier application
-👨‍💻 Developer
-Rezwanul Haque
+
+## 👨‍💻 Developer
+
+**Rezwanul Haque**
+
 Backend Developer
+
 GitHub:
 https://github.com/Rezwanul777
-⭐ Project Status
-Completed core logistics workflow:
-
-Project Status
-Completed core logistics workflow:
-Shipment Creation
-
-↓
-
-Payment Verification
-
-↓
-
-Courier Pickup
-
-↓
-
-Hub Transfer
-
-↓
-
-Delivery Completion
