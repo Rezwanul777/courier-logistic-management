@@ -25,6 +25,7 @@ import { PaymentRoutes } from "./app/modules/payment/payment.route";
 import { PaymentController } from "./app/modules/payment/payment.controller";
 import { CourierRoutes } from "./app/modules/courier/courier.route";
 import { AdminTaskRoutes, TaskRoutes } from "./app/modules/task/task.route";
+import { HubTransferRoutes } from "./app/modules/hub-transfer/hub-transfer.route";
 
 const app: Application = express();
 
@@ -61,6 +62,8 @@ app.use(express.json({ limit: "32kb" }));
 app.use(cookieParser());
 app.use(checkRequestOrigin);
 
+//requirement of all routes to be prefixed with /api/v1
+
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/users", UserRoutes);
 app.use("/api/v1/admin", AdminUserRoutes);
@@ -75,6 +78,7 @@ app.use("/api/v1/payments", PaymentRoutes);
 app.use("/api/v1/admin/couriers", CourierRoutes);
 app.use("/api/v1/admin/tasks", AdminTaskRoutes);
 app.use("/api/v1/tasks", TaskRoutes);
+app.use("/api/v1/admin/hub-transfers", HubTransferRoutes);
 
 // Basic rout
 app.get("/", async (req: Request, res: Response) => {
