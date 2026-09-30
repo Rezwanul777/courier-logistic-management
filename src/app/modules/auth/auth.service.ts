@@ -5,7 +5,8 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import bcrypt from "bcryptjs";
-import { OAuth2Client, type TokenPayload } from "google-auth-library";
+import { OAuth2Client } from "google-auth-library";
+import type { TokenPayload } from "google-auth-library/build/src/auth/loginticket";
 import { Role } from "../../../generated/prisma/enums";
 import config from "../../config";
 import { sendPasswordResetEmail, sendVerificationEmail } from "../../lib/mail";
@@ -14,6 +15,7 @@ import { redisClient } from "../../lib/redis";
 import { AppError } from "../../utils/AppError";
 import { jwtUtils } from "../../utils/jwt";
 import type {
+  IAuthResponse,
   IForgotPasswordPayload,
   IGoogleLoginPayload,
   ILoginUserPayload,
@@ -24,6 +26,7 @@ import type {
   IVerifyEmailPayload,
 } from "./auth.interface";
 import { AuthUtils } from "./auth.utils";
+import { googleClient } from "../../utils/google";
 
 const otpKey = (email: string) => `courier:register:${email}`;
 const attemptsKey = (email: string) => `courier:register:attempts:${email}`;
@@ -153,58 +156,181 @@ async function login(input: ILoginUserPayload) {
   };
 }
 
-async function googleLogin(input: IGoogleLoginPayload) {
-  if (!config.google_client_id)
+// async function googleLogin(input: IGoogleLoginPayload) {
+//   if (!config.google_client_id)
+//     throw new AppError(503, "Google login is not configured");
+//   const client = new OAuth2Client(config.google_client_id);
+//   let payload: TokenPayload | undefined;
+//   try {
+//     payload = (
+//       await client.verifyIdToken({
+//         idToken: input.idToken,
+//         audience: config.google_client_id,
+//       })
+//     ).getPayload();
+//   } catch {
+//     throw new AppError(401, "Invalid Google ID token");
+//   }
+//   if (!payload?.sub || !payload.email || !payload.email_verified) {
+//     throw new AppError(401, "A verified Google email is required");
+//   }
+//   const email = payload.email.trim().toLowerCase();
+//   let user = await prisma.user.findUnique({ where: { googleId: payload.sub } });
+//   if (!user) {
+//     const existing = await prisma.user.findUnique({ where: { email } });
+//     if (existing)
+//       throw new AppError(
+//         409,
+//         "Email already registered. Sign in with your existing method.",
+//       );
+//     user = await prisma.user.create({
+//       data: {
+//         email,
+//         name: payload.name || email.split("@")[0],
+//         googleId: payload.sub,
+//         authProvider: "GOOGLE",
+//         emailVerified: true,
+//         role: Role.CUSTOMER,
+//       },
+//     });
+//   }
+//   if (user.email !== email || !user.isActive || user.deletedAt)
+//     throw new AppError(403, "Account unavailable");
+//   return {
+//     user: {
+//       id: user.id,
+//       email: user.email,
+//       name: user.name,
+//       role: user.role,
+//       tokenVersion: user.tokenVersion,
+//     },
+//     ...(await issueTokens(user)),
+//   };
+// }
+
+// const googleLogin = async (idToken: string) => {
+//   const ticket = await googleClient.verifyIdToken({
+//     idToken,
+
+//     audience: config.google_client_id,
+//   });
+
+//   const payload = ticket.getPayload();
+
+//   if (!payload) {
+//     throw new Error("Invalid Google token");
+//   }
+
+//   const email = payload.email;
+
+//   const name = payload.name || "Google User";
+
+//   const googleId = payload.sub;
+
+//   if (!email) {
+//     throw new Error("Google email not found");
+//   }
+
+//   let user = await prisma.user.findUnique({
+//     where: {
+//       email,
+//     },
+//   });
+
+//   if (!user) {
+//     user = await prisma.user.create({
+//       data: {
+//         name,
+
+//         email,
+
+//         googleId,
+
+//         authProvider: "GOOGLE",
+
+//         emailVerified: true,
+
+//         isActive: true,
+
+//         role: "CUSTOMER",
+//       },
+//     });
+//   }
+
+//   return user;
+// };
+
+async function googleLogin(input: IGoogleLoginPayload): Promise<IAuthResponse> {
+  if (!config.google_client_id) {
     throw new AppError(503, "Google login is not configured");
-  const client = new OAuth2Client(config.google_client_id);
-  let payload: TokenPayload | undefined;
+  }
+
+let payload: TokenPayload | undefined;
+
   try {
-    payload = (
-      await client.verifyIdToken({
-        idToken: input.idToken,
-        audience: config.google_client_id,
-      })
-    ).getPayload();
+    const ticket = await googleClient.verifyIdToken({
+      idToken: input.idToken,
+
+      audience: config.google_client_id,
+    });
+
+    payload = ticket.getPayload();
   } catch {
     throw new AppError(401, "Invalid Google ID token");
   }
-  if (!payload?.sub || !payload.email || !payload.email_verified) {
-    throw new AppError(401, "A verified Google email is required");
+
+  if (!payload || !payload.email || !payload.email_verified) {
+    throw new AppError(401, "Google email verification failed");
   }
+
   const email = payload.email.trim().toLowerCase();
-  let user = await prisma.user.findUnique({ where: { googleId: payload.sub } });
+
+  let user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
   if (!user) {
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing)
-      throw new AppError(
-        409,
-        "Email already registered. Sign in with your existing method.",
-      );
     user = await prisma.user.create({
       data: {
         email,
-        name: payload.name || email.split("@")[0],
+
+        name: payload.name ?? email.split("@")[0],
+
         googleId: payload.sub,
+
         authProvider: "GOOGLE",
+
         emailVerified: true,
+
         role: Role.CUSTOMER,
+
+        isActive: true,
       },
     });
   }
-  if (user.email !== email || !user.isActive || user.deletedAt)
+
+  if (!user.isActive || user.deletedAt) {
     throw new AppError(403, "Account unavailable");
+  }
+
   return {
     user: {
       id: user.id,
+
       email: user.email,
-      name: user.name,
+
+      name: user.name as string,
+
       role: user.role,
+
       tokenVersion: user.tokenVersion,
     },
+
     ...(await issueTokens(user)),
   };
 }
-
 async function refresh(refreshToken: string) {
   const verified = jwtUtils.verifyToken(
     refreshToken,
@@ -212,6 +338,7 @@ async function refresh(refreshToken: string) {
   );
   if (
     !verified.success ||
+    !verified.data ||
     verified.data.type !== "refresh" ||
     !verified.data.jti
   ) {
@@ -223,7 +350,7 @@ async function refresh(refreshToken: string) {
   });
   if (
     !session ||
-    verified.data.sub !== String(session.userId) ||
+    verified.data.userId !== Number(session.userId) ||
     verified.data.tokenVersion !== session.user.tokenVersion ||
     session.revokedAt ||
     session.expiresAt <= new Date() ||

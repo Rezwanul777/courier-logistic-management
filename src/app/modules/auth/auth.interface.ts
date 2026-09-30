@@ -47,3 +47,24 @@ export interface ITokenUser {
 	tokenVersion: number;
 }
 
+
+export interface IGoogleLogin {
+
+  idToken:string;
+
+}
+
+
+export interface IAuthResponse {
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    role: string;
+    tokenVersion: number;
+  };
+
+  accessToken: string;
+
+  refreshToken: string;
+}

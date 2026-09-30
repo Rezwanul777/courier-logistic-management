@@ -36,13 +36,22 @@ const resetPasswordSchema = z.strictObject({
 			"Password must not exceed 72 UTF-8 bytes",
 		),
 });
+
+const googleLogin = z.object({
+
+  idToken:
+    z.string()
+    .min(20),
+
+});
+
 export const AuthValidation = {
 	forgotPassword: forgotPasswordSchema,
 	resetPassword: resetPasswordSchema,
 	registerCustomer: registerSchema,
 	verifyEmail: verifySchema,
 	loginUser: loginSchema,
-	googleLogin: googleSchema,
+	googleLogin: googleLogin,
 	refreshToken: refreshSchema,
 	logout: refreshSchema,
 };
