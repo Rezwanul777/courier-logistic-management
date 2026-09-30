@@ -195,8 +195,6 @@ const deleteShipment = async (shipmentId: number, userId: number) => {
   });
 };
 
-
-
 const getTrackingHistory = async (shipmentId: number, userId: number) => {
   const shipment = await prisma.shipment.findFirst({
     where: {
@@ -220,7 +218,6 @@ const getTrackingHistory = async (shipmentId: number, userId: number) => {
     },
   });
 };
-
 
 // admin function to get all shipments with pagination and filtering
 
@@ -290,13 +287,39 @@ const getAllShipments = async (query: any) => {
   };
 };
 
+const getShipmentTracking = async (shipmentId: number, userId: number) => {
+  const shipment = await prisma.shipment.findFirst({
+    where: {
+      id: shipmentId,
+      customerId: userId,
+      deletedAt: null,
+    },
+  });
+
+  if (!shipment) {
+    throw new Error("Shipment not found");
+  }
+
+  const trackingEvents = await prisma.trackingEvent.findMany({
+    where: {
+      shipmentId,
+    },
+
+    orderBy: {
+      occurredAt: "asc",
+    },
+  });
+
+  return trackingEvents;
+};
+
 export const ShipmentService = {
   createShipment,
-
   getMyShipments,
   getShipmentById,
   getTrackingHistory,
   updateShipment,
   deleteShipment,
   getAllShipments,
+  getShipmentTracking,
 };

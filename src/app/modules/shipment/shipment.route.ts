@@ -61,3 +61,5 @@ export const AdminShipmentRoutes = Router();
 AdminShipmentRoutes.use(auth("ADMIN"));
 
 AdminShipmentRoutes.get("/", ShipmentController.getAllShipments);
+ShipmentRoutes.get(
+  "/:id/tracking", ShipmentController.getShipmentTracking,);

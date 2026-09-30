@@ -111,6 +111,21 @@ const getAllShipments = async (req: Request, res: Response) => {
   });
 };
 
+const getShipmentTracking = async (req: Request, res: Response) => {
+  const result = await ShipmentService.getShipmentTracking(
+    Number(req.params.id),
+
+    req.user?.userId as number,
+  );
+
+  res.json({
+    success: true,
+
+    message: "Shipment tracking retrieved",
+
+    data: result,
+  });
+};
 
 export const ShipmentController = {
   createShipment,
@@ -121,4 +136,5 @@ export const ShipmentController = {
   deleteShipment,
   getTrackingHistory,
   getAllShipments,
+  getShipmentTracking,
 };
