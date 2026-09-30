@@ -1,0 +1,25 @@
+model HubTransfer {
+  id Int @id @default(autoincrement())
+
+  shipmentId Int
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id])
+
+  fromHubId Int
+
+  fromHub Hub @relation("TransferFromHub", fields: [fromHubId], references: [id])
+
+  toHubId Int
+
+  toHub Hub @relation("TransferToHub", fields: [toHubId], references: [id])
+
+  status TransferStatus @default(DISPATCHED)
+
+  createdById Int
+
+  receivedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([shipmentId])
+}

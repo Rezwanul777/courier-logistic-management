@@ -12,6 +12,8 @@ model Hub {
   originShipments Shipment[] @relation("OriginShipments")
 
   destinationShipments Shipment[] @relation("DestinationShipments")
+  outgoingTransfers HubTransfer[] @relation("TransferFromHub")
+  incomingTransfers HubTransfer[] @relation("TransferToHub")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

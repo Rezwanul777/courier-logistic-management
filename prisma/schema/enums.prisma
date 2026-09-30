@@ -64,3 +64,13 @@ enum TaskStatus {
 }
 
 
+enum TransferStatus {
+
+  DISPATCHED
+
+  RECEIVED
+
+}
+
+
+

@@ -38,6 +38,7 @@ model Shipment {
   trackingEvents TrackingEvent[]
   payment        Payment?
   courierTasks   CourierTask[] @relation("ShipmentTasks")
+  hubTransfers HubTransfer[]
 
   @@index([customerId, createdAt])
   @@index([status, createdAt])

@@ -24,6 +24,7 @@ import {
 import { PaymentRoutes } from "./app/modules/payment/payment.route";
 import { PaymentController } from "./app/modules/payment/payment.controller";
 import { CourierRoutes } from "./app/modules/courier/courier.route";
+import { AdminTaskRoutes, TaskRoutes } from "./app/modules/task/task.route";
 
 const app: Application = express();
 
@@ -72,6 +73,8 @@ app.use("/api/v1/shipments", ShipmentRoutes);
 app.use("/api/v1/admin/shipments", AdminShipmentRoutes);
 app.use("/api/v1/payments", PaymentRoutes);
 app.use("/api/v1/admin/couriers", CourierRoutes);
+app.use("/api/v1/admin/tasks", AdminTaskRoutes);
+app.use("/api/v1/tasks", TaskRoutes);
 
 // Basic rout
 app.get("/", async (req: Request, res: Response) => {
