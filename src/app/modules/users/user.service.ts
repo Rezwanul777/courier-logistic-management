@@ -136,7 +136,7 @@ async function changeAccount(
 		throw new AppError(403, "You cannot disable or delete your own account");
 	return prisma.$transaction(async (tx) => {
 		const previous = await tx.user.findFirst({
-			where: { id, deletedAt: null },
+			where: { id},
 			select: safeSelect,
 		});
 		if (!previous) throw new AppError(404, "User not found");
@@ -146,18 +146,24 @@ async function changeAccount(
 		if (!deleting && previous.isActive === input.isActive)
 			throw new AppError(409, "Account already has the requested status");
 		const updated = await tx.user.updateMany({
-			where: {
-				id,
-				deletedAt: null,
-				updatedAt: previous.updatedAt,
-				role: { in: ["CUSTOMER", "COURIER"] },
-			},
-			data: {
-				isActive: deleting ? false : input.isActive,
-				...(deleting ? { deletedAt: new Date() } : {}),
-				tokenVersion: { increment: 1 },
-			},
-		});
+	where: {
+		id,
+		updatedAt: previous.updatedAt,
+		role: { in: ["CUSTOMER", "COURIER"] },
+	},
+	data: {
+		isActive: deleting ? false : input.isActive,
+
+		...(deleting
+			? { deletedAt: new Date() }
+			: { deletedAt: null }
+		),
+
+		tokenVersion: {
+			increment: 1
+		},
+	},
+});;
 		if (updated.count !== 1)
 			throw new AppError(409, "Account changed; reload and retry");
 		await tx.refreshSession.updateMany({

@@ -291,25 +291,73 @@ let payload: TokenPayload | undefined;
     },
   });
 
+  // if (!user) {
+  //   user = await prisma.user.create({
+  //     data: {
+  //       email,
+
+  //       name: payload.name ?? email.split("@")[0],
+
+  //       googleId: payload.sub,
+
+  //       authProvider: "GOOGLE",
+
+  //       emailVerified: true,
+
+  //       role: Role.CUSTOMER,
+
+  //       isActive: true,
+  //     },
+  //   });
+  // }
+
   if (!user) {
-    user = await prisma.user.create({
-      data: {
-        email,
 
-        name: payload.name ?? email.split("@")[0],
+  user = await prisma.user.create({
 
-        googleId: payload.sub,
+    data: {
 
-        authProvider: "GOOGLE",
+      email,
 
-        emailVerified: true,
+      name: payload.name ?? email.split("@")[0],
 
-        role: Role.CUSTOMER,
+      googleId: payload.sub,
 
-        isActive: true,
-      },
-    });
-  }
+      authProvider: "GOOGLE",
+
+      emailVerified: true,
+
+      role: Role.CUSTOMER,
+
+      isActive: true,
+
+    },
+
+  });
+
+
+} else if (!user.googleId) {
+
+
+  user = await prisma.user.update({
+
+    where: {
+      id: user.id,
+    },
+
+    data: {
+
+      googleId: payload.sub,
+
+      authProvider: "GOOGLE",
+
+      emailVerified: true,
+
+    },
+
+  });
+
+}
 
   if (!user.isActive || user.deletedAt) {
     throw new AppError(403, "Account unavailable");
