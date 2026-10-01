@@ -126,6 +126,12 @@ async function changeAccount(
 	requestId: string,
 	deleting = false,
 ) {
+	console.log("CHANGE ACCOUNT HIT",{
+ actorId,
+ id,
+ deleting,
+ input
+});
 	if (actorId === id)
 		throw new AppError(403, "You cannot disable or delete your own account");
 	return prisma.$transaction(async (tx) => {

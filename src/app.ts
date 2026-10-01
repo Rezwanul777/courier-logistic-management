@@ -66,6 +66,15 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware to parse JSON bodies
 app.use(express.json({ limit: "32kb" }));
 app.use(cookieParser());
+app.use((req,res,next)=>{
+ console.log(
+   "REQUEST",
+   req.method,
+   req.path,
+   req.body
+ );
+ next();
+});
 app.use(checkRequestOrigin);
 
 //requirement of all routes to be prefixed with /api/v1
