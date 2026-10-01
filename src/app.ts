@@ -75,7 +75,7 @@ app.use((req,res,next)=>{
  );
  next();
 });
-app.use(checkRequestOrigin);
+//app.use(checkRequestOrigin);
 
 //requirement of all routes to be prefixed with /api/v1
 
