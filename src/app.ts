@@ -38,6 +38,11 @@ app.post(
   PaymentController.webhook,
 );
 
+app.set(
+  "trust proxy",
+  1
+);
+
 app.use(helmet());
 app.use(
   rateLimit({
