@@ -6,6 +6,8 @@ Built with **Node.js, TypeScript, Express.js, PostgreSQL, Prisma ORM, Redis, Str
 
 ---
 
+
+
 # 📌 Business Problem
 
 Traditional courier businesses often manage shipment operations manually or through disconnected systems. This creates several operational challenges:
@@ -724,7 +726,7 @@ ID tokens through Google Sign-In and submit them to the same endpoint.
 ```md
 ## 📌 API Documentation
 
-Base URL:https://coureir-logistic.vercel.app/api/v1
+## Base URL:https://coureir-logistic.vercel.app/api/v1
 
 
 ### Authentication
@@ -761,7 +763,29 @@ Base URL:https://coureir-logistic.vercel.app/api/v1
 - Live GPS tracking
 - Delivery analytics dashboard
 - Refund management
-- Mobile courier application
+- Mobile courier
+
+## Conclusion
+
+The Courier & Logistics Management Platform manages shipment creation,
+payments, courier assignments, hub transfers, and delivery tracking.
+
+The backend follows a modular architecture with separate routes,
+controllers, services, interfaces, and validations. Access is controlled
+through three roles: Customer, Courier, and Admin.
+
+For detailed explanations of the project, see:
+
+1. [Database Schema Reference](docs/DATABASE_SCHEMA_REFERENCE.md)
+   — Database models, fields, relationships, enums, and indexes.
+
+2. [API Instructions](docs/API_INSTRUCTION.md)
+   — API endpoints by role, authentication, request and response
+   examples, and shipment and payment workflows.
+
+3. [Modular Architecture Guide](docs/MODULAR_ARCHITECTURE_GUIDE.md)
+   — Project organization, module responsibilities, middleware,
+   and the request flow from routes to Prisma.
 
 ## 👨‍💻 Developer
 
