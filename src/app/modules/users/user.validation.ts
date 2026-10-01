@@ -31,7 +31,7 @@ const changeStatus = z.strictObject({
 	reason: z.string().trim().min(5).max(500),
 });
 const removeUser = z.strictObject({
-	reason: z.string().trim().min(5).max(500),
+	reason: z.string().trim().min(5).max(500).optional(),
 });
 const id = z.coerce.number().int().positive().max(2147483647);
 const auditQuery = z.strictObject({

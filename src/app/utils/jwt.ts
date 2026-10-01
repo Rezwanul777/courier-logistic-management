@@ -21,72 +21,106 @@ import jwt, { type JwtPayload, type SignOptions } from "jsonwebtoken";
 
 // export const jwtUtils = { createToken, verifyToken };
 
-export interface IJwtPayload {
-  [x: string]: string;
-  userId: number;
+// export interface IJwtPayload {
+//   [x: string]: string;
+//   userId: number;
 
-  role: "CUSTOMER" | "COURIER" | "ADMIN";
+//   role: "CUSTOMER" | "COURIER" | "ADMIN";
 
-  type: "access" | "refresh";
+//   type: "access" | "refresh";
 
-  jti: string;
+//   jti: string;
 
-  tokenVersion: number;
+//   tokenVersion: number;
 
-  iat?: number;
+//   iat?: number;
 
-  exp?: number;
-}
+//   exp?: number;
+// }
+
+
+// const createToken = (
+//   payload: IJwtPayload,
+//   secret: string,
+//   expiresIn: string,
+// ) => {
+
+//   return jwt.sign(
+//     payload,
+//     secret,
+//     {
+//       expiresIn: expiresIn as any,
+//     },
+//   );
+
+// };
+
+
+
+// const verifyToken = (
+//   token:string,
+//   secret:string,
+// )=>{
+
+//   try{
+
+//     const verifiedToken =
+//       jwt.verify(token, secret) as IJwtPayload;
+
+
+//     return {
+//       success:true,
+//       data:verifiedToken,
+//     };
+
+
+//   }catch(error:any){
+
+//     return {
+//       success:false,
+//       error:error.message,
+//     };
+
+//   }
+
+// };
+
+
+// export const jwtUtils={
+//   createToken,
+//   verifyToken,
+// };
 
 
 const createToken = (
-  payload: IJwtPayload,
-  secret: string,
-  expiresIn: string,
+	payload: JwtPayload,
+	secret: string,
+	expiresIn: SignOptions,
 ) => {
+	const token = jwt.sign(payload, secret, {
+		expiresIn,
+	} as SignOptions);
 
-  return jwt.sign(
-    payload,
-    secret,
-    {
-      expiresIn: expiresIn as any,
-    },
-  );
-
+	return token;
 };
 
-
-
-const verifyToken = (
-  token:string,
-  secret:string,
-)=>{
-
-  try{
-
-    const verifiedToken =
-      jwt.verify(token, secret) as IJwtPayload;
-
-
-    return {
-      success:true,
-      data:verifiedToken,
-    };
-
-
-  }catch(error:any){
-
-    return {
-      success:false,
-      error:error.message,
-    };
-
-  }
-
+const verifyToken = (token: string, secret: string) => {
+	try {
+		const verifiedToken = jwt.verify(token, secret);
+		return {
+			success: true,
+			data: verifiedToken,
+		};
+	} catch (error: any) {
+		console.log("Token verification failed:", error);
+		return {
+			success: false,
+			error: error.message,
+		};
+	}
 };
 
-
-export const jwtUtils={
-  createToken,
-  verifyToken,
+export const jwtUtils = {
+	createToken,
+	verifyToken,
 };
