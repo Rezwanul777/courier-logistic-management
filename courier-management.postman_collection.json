@@ -1,0 +1,1438 @@
+{
+  "info": {
+    "_postman_id": "1bde0c90-58e1-40fd-9a44-932c29e02bf5",
+    "name": "courier-management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "19131499"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"prince\",\r\n  \"email\": \"demoprince610@gmail.com\",\r\n  \"password\": \"Customer123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify-email",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\":\"demoprince610@gmail.com\",\r\n  \"otp\":\"589199\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/verify-email",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\r\n//   \"email\":\"rezwanul.haquebd777@gmail.com\",\r\n// \"password\":\"Customer1234!\"\r\n// }\r\n {\"email\":\"rezwanul182@gmail.com\",\r\n\"password\":\"Courier12345\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getMe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"prince\",\r\n  \"email\": \"demoprince610@gmail.com\",\r\n  \"password\": \"Customer123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refresh-token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "forgot-password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \r\n  \"email\": \"demoprince610@gmail.com\"\r\n  \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/forgot-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "reset-password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"demoprince610@gmail.com\",\r\n  \"otp\": \"493088\",\r\n  \"newPassword\": \"Customer1234!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "google-login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"idToken\":\"eyJhbGciOiJSUzI1NiIsImtpZCI6ImYxMGY4NzQwNWE5NzljMWRmMzZkZjI2NjA2NzM0ZjMzY2Q4NWMyNzEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3OTgyNjE2MzI2NC1iZm0wczRtYW5jcmZvdjl1MmMxcHFra2FkamRmZWl2Ny5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF1ZCI6Ijc5ODI2MTYzMjY0LWJmbTBzNG1hbmNyZm92OXUyYzFwcWtrYWRqZGZlaXY3LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTE1NDQwNzc0NjE0ODcwMjgxMDYzIiwiZW1haWwiOiJyZXp3YW51bC5oYXF1ZWJkNzc3QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiVE5NeV9uNFoxZVczWTRLR2hiQ2VKZyIsIm5hbWUiOiJSZXp3YW51bCBIYXF1ZSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKN1RGTzh5MmR1OHlTSk1COENMaHpMS0dTZ25SbmI3ZUVsUm5SQnNCQXkteFF1bVFDVT1zOTYtYyIsImdpdmVuX25hbWUiOiJSZXp3YW51bCIsImZhbWlseV9uYW1lIjoiSGFxdWUiLCJpYXQiOjE3OTA4NDA1NTcsImV4cCI6MTc5MDg0NDE1N30.qhaXvXJGp0Bv2MLQxA9OJvqKOHir94kLMKxVdNaIqaccOYjjuFiLWqn8S-vdm_JmB90rgwhoKUS2nWaCnxtSQT9VhxzJbHWTezvmejdimKZnGWVRzF5ERHj-Z6ozAzs3xu5wcmhgmkc6SfZzZODUQIpNmAWIIpIplDB8raQM12dyOikM3adSm4z_NOusuzLbEwobc8eijHqWRuxBfiw7GCltO2qlp5-u7QugIqFISqyqGj1qrg6AtjzrxrMDmRoLGxJXRl38SlKK85ctYmVNrw9h8edl7t9hUu6zdqpj5MQMTx15-7munqqj3CU8S_SsNDfbnXwxVdt7T6ghUzCmLA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/google-login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "google-login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "hub",
+          "item": [
+            {
+              "name": "create-hub",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"code\": \"COM-CENTRAL\",\r\n  \"name\": \"COM-CENTRAL Zone\",\r\n  \"address\":\"Bonani\",\r\n  \"zoneId\":7\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/admin/hubs",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "hubs"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-hubs",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/hubs",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "hubs"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Admin-hub-list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/admin/hubs",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "hubs"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "uodated-hub",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n \"name\":\"Dhaka Main Hub\",\r\n \"address\":\"Gulshan Dhaka\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5000/api/v1/admin/hubs/1",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5000",
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "hubs",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:5000/api/v1/admin/hubs/1",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5000",
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "hubs",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "admin-user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"admin@courier.com\",\r\n  \"password\": \"Admin_courier@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "me-user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "profile-update",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Courier Admin\",\r\n  \"phone\": \"+8801712345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "user-serach",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users?page=1&limit=10&role=CUSTOMER",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "role",
+                  "value": "CUSTOMER"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "single-user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users/4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "status-changed",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"isActive\": true,\r\n  \"reason\": \"Account riview complted\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users/4/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "4",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "audit-log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/audit-logs?entityId=2&page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "audit-logs"
+              ],
+              "query": [
+                {
+                  "key": "entityId",
+                  "value": "2"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "soft-delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"reason\":\"Testing soft delete\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://coureir-logistic.vercel.app/api/v1/admin/users/4",
+              "protocol": "https",
+              "host": [
+                "coureir-logistic",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "users",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "zone",
+      "item": [
+        {
+          "name": "create-zone",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"RAJ-CENTRAL\",\r\n  \"name\": \"RAJ-CENTRAL Zone\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/zones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "zones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-zones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/zones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "zones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "zone-list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/zones?page=1&limit=10&search=Dhaka",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "zones"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "Dhaka"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "zone-update",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Dhaka Mirpur Zone\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/zones/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "zones",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/zones/6",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "zones",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "rateCard",
+      "item": [
+        {
+          "name": "create-RateCard",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"originZoneId\":3,\r\n \"destinationZoneId\":7,\r\n \"weightFrom\":0,\r\n \"weightTo\":5,\r\n \"baseAmountMinor\":14000,\r\n \"currency\":\"BDT\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/rates",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "rates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get rateCard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"idToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6ImYxMGY4NzQwNWE5NzljMWRmMzZkZjI2NjA2NzM0ZjMzY2Q4NWMyNzEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3OTgyNjE2MzI2NC1iZm0wczRtYW5jcmZvdjl1MmMxcHFra2FkamRmZWl2Ny5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF1ZCI6Ijc5ODI2MTYzMjY0LWJmbTBzNG1hbmNyZm92OXUyYzFwcWtrYWRqZGZlaXY3LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA0NTAzMDkxMjYwNTY3NjQ3MTcwIiwiZW1haWwiOiJkZW1vcHJpbmNlNjEwQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE3OTA1NzE0ODQsIm5hbWUiOiJkZW1vIHByaW5jZSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJUnN2ZTR1aC1CZHpMajVOWll6bEd1NTZEc3NPZWNTN2NLOHFhcWxUUm5FU2FhU1E9czk2LWMiLCJnaXZlbl9uYW1lIjoiZGVtbyIsImZhbWlseV9uYW1lIjoicHJpbmNlIiwiaWF0IjoxNzkwNTcxNzg0LCJleHAiOjE3OTA1NzUzODQsImp0aSI6Ijg0NzA4YzY5OGFkZmQ0ZjdmNjhiMjk4YWZkNTdlYmYxZjE4NGRjYWUifQ.p9uFKm0JWCNImNNHEJyK7LDR5bhajBROSwbC1r4tQGsJkXXPKiR_keEZsnq9Y5Ekpz9MUZu2EJlIz9xBAOamUwkDTlvWIZvPnQuBpdyGLGT4mHnBYXJKdGK7EickWOPbTfTgwZH3pE5K7tdnXxzV1pZ92Ap1xXBLStApvwhPtUzdzerdmBF_14d5bkTcg0ZSL2Q2cZjajfEo1rbYiqdCQdsYRjng5CvM9tv9_M3Ap-uqIzHNG6T9oVqAIW_8GAYlP9zsLF6TXQHX5MsvGiuHbE77US_YhLmw2vVmZyY10cemB2bRVf1Gij5sSzVIe0v3E-Bt5Trr_g8GCeqe84ca6A\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/rates?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "rates"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"idToken\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6ImYxMGY4NzQwNWE5NzljMWRmMzZkZjI2NjA2NzM0ZjMzY2Q4NWMyNzEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3OTgyNjE2MzI2NC1iZm0wczRtYW5jcmZvdjl1MmMxcHFra2FkamRmZWl2Ny5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF1ZCI6Ijc5ODI2MTYzMjY0LWJmbTBzNG1hbmNyZm92OXUyYzFwcWtrYWRqZGZlaXY3LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA0NTAzMDkxMjYwNTY3NjQ3MTcwIiwiZW1haWwiOiJkZW1vcHJpbmNlNjEwQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE3OTA1NzE0ODQsIm5hbWUiOiJkZW1vIHByaW5jZSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJUnN2ZTR1aC1CZHpMajVOWll6bEd1NTZEc3NPZWNTN2NLOHFhcWxUUm5FU2FhU1E9czk2LWMiLCJnaXZlbl9uYW1lIjoiZGVtbyIsImZhbWlseV9uYW1lIjoicHJpbmNlIiwiaWF0IjoxNzkwNTcxNzg0LCJleHAiOjE3OTA1NzUzODQsImp0aSI6Ijg0NzA4YzY5OGFkZmQ0ZjdmNjhiMjk4YWZkNTdlYmYxZjE4NGRjYWUifQ.p9uFKm0JWCNImNNHEJyK7LDR5bhajBROSwbC1r4tQGsJkXXPKiR_keEZsnq9Y5Ekpz9MUZu2EJlIz9xBAOamUwkDTlvWIZvPnQuBpdyGLGT4mHnBYXJKdGK7EickWOPbTfTgwZH3pE5K7tdnXxzV1pZ92Ap1xXBLStApvwhPtUzdzerdmBF_14d5bkTcg0ZSL2Q2cZjajfEo1rbYiqdCQdsYRjng5CvM9tv9_M3Ap-uqIzHNG6T9oVqAIW_8GAYlP9zsLF6TXQHX5MsvGiuHbE77US_YhLmw2vVmZyY10cemB2bRVf1Gij5sSzVIe0v3E-Bt5Trr_g8GCeqe84ca6A\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/rates?originZoneId=3&destinationZoneId=7",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "rates"
+              ],
+              "query": [
+                {
+                  "key": "originZoneId",
+                  "value": "3"
+                },
+                {
+                  "key": "destinationZoneId",
+                  "value": "7"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update-rate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"baseAmountMinor\":15000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/rates/4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "rates",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Disable-rate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"isActive\":true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/rates/4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "rates",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "shipments",
+      "item": [
+        {
+          "name": "create-shipment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"originHubId\":2,\r\n  \"destinationHubId\":3,\r\n  \"description\":\"Books parcel\",\r\n  \"weight\":5,\r\n\r\n  \"pickupAddress\":{\r\n    \"district\":\"Chittagong\",\r\n    \"address\":\"Agrabad\"\r\n  },\r\n\r\n\r\n  \"recipient\":{\r\n    \"name\":\"karim\",\r\n    \"phone\":\"01700000000\",\r\n    \"address\":\"Dhaka\"\r\n  },\r\n\r\n\r\n  \"quotedAmountMinor\":12000,\r\n\r\n  \"currency\":\"BDT\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/shipments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "shipments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "shiipment-details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/shipments/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "shipments",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updated-shipment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"description\":\"Updated parcel weight\",\r\n \"weight\":10\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/shipments/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "shipments",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Trackiing",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/shipments/3/tracking",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "shipments",
+                "3",
+                "tracking"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "shipment-list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/shipments?page=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shipments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-tracking-customer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/shipments/4/tracking",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "shipments",
+                "4",
+                "tracking"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "payment",
+      "item": [
+        {
+          "name": "get-shipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payments/shipment/4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "shipment",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create-checkout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"shipmentId\":5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Courier",
+      "item": [
+        {
+          "name": "create-courier",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"name\":\"Prince Courier\",\r\n\"email\":\"rezwanul182@gmail.com\",\r\n\"password\":\"Courier12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/couriers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "couriers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-Courier",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"idToken\":\"eyJhbGciOiJSUzI1NiIsImtpZCI6ImYxMGY4NzQwNWE5NzljMWRmMzZkZjI2NjA2NzM0ZjMzY2Q4NWMyNzEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3OTgyNjE2MzI2NC1iZm0wczRtYW5jcmZvdjl1MmMxcHFra2FkamRmZWl2Ny5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF1ZCI6Ijc5ODI2MTYzMjY0LWJmbTBzNG1hbmNyZm92OXUyYzFwcWtrYWRqZGZlaXY3LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTE1NDQwNzc0NjE0ODcwMjgxMDYzIiwiZW1haWwiOiJyZXp3YW51bC5oYXF1ZWJkNzc3QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiVE5NeV9uNFoxZVczWTRLR2hiQ2VKZyIsIm5hbWUiOiJSZXp3YW51bCBIYXF1ZSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKN1RGTzh5MmR1OHlTSk1COENMaHpMS0dTZ25SbmI3ZUVsUm5SQnNCQXkteFF1bVFDVT1zOTYtYyIsImdpdmVuX25hbWUiOiJSZXp3YW51bCIsImZhbWlseV9uYW1lIjoiSGFxdWUiLCJpYXQiOjE3OTA4NDA1NTcsImV4cCI6MTc5MDg0NDE1N30.qhaXvXJGp0Bv2MLQxA9OJvqKOHir94kLMKxVdNaIqaccOYjjuFiLWqn8S-vdm_JmB90rgwhoKUS2nWaCnxtSQT9VhxzJbHWTezvmejdimKZnGWVRzF5ERHj-Z6ozAzs3xu5wcmhgmkc6SfZzZODUQIpNmAWIIpIplDB8raQM12dyOikM3adSm4z_NOusuzLbEwobc8eijHqWRuxBfiw7GCltO2qlp5-u7QugIqFISqyqGj1qrg6AtjzrxrMDmRoLGxJXRl38SlKK85ctYmVNrw9h8edl7t9hUu6zdqpj5MQMTx15-7munqqj3CU8S_SsNDfbnXwxVdt7T6ghUzCmLA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/couriers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "couriers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update-status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"isActive\":true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/couriers/10/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "couriers",
+                "10",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "task",
+      "item": [
+        {
+          "name": "assign-courier",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"shipmentId\":5,\r\n \"courierId\":10\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/tasks/assign-pickup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "tasks",
+                "assign-pickup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks/me/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks",
+                "me",
+                "tasks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "accepted-task",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks/3/accept",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks",
+                "3",
+                "accept"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "pickup",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"proof\":\"Parcel collected successfully from customer\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/3/pickup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks",
+                "3",
+                "pickup"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "hub-transfer",
+      "item": [
+        {
+          "name": "origin-hub-received",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/hub-transfers/5/origin-receive",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "hub-transfers",
+                "5",
+                "origin-receive"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "dispatch-Transfer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"fromHubId\":2,\r\n \"toHubId\":3\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/hub-transfers/5/dispatch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "hub-transfers",
+                "5",
+                "dispatch"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "destination-received",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/hub-transfers/5/destination-receive",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "hub-transfers",
+                "5",
+                "destination-receive"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "delivery",
+      "item": [
+        {
+          "name": "assign-delivery",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"courierId\":10\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/shipments/5/assign-delivery",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shipments",
+                "5",
+                "assign-delivery"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "start-delivery",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/4/start-delivery",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks",
+                "4",
+                "start-delivery"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "complete-deliver",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"recipientName\":\"prince Ahmed\",\r\n  \"proof\":\"Delivered successfully\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/4/deliver",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks",
+                "4",
+                "deliver"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": ""
+    }
+  ]
+}
