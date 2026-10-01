@@ -588,6 +588,134 @@ npx prisma migrate dev
 
 npm run dev
 
+## Google Login Implementation and Testing
+
+This backend supports Google login through Google ID token verification
+using `google-auth-library`. Google OAuth Playground is used to obtain
+ID tokens for testing without a frontend.
+
+### Authentication Flow
+
+1. The tester signs in to Google through OAuth Playground.
+2. Google issues an ID token.
+3. The tester sends the token to `POST /api/v1/auth/google-login`.
+4. The backend verifies the token against `GOOGLE_CLIENT_ID`.
+5. The backend checks that Google has verified the user's email.
+6. A new Google user is registered with the `CUSTOMER` role.
+7. Active users receive application access and refresh tokens,
+   which are also set as HTTP-only cookies.
+
+Inactive or soft-deleted accounts cannot log in.
+
+### Environment Configuration
+
+Configure these values locally and in the deployment environment:
+
+```env
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
+```
+
+Keep actual secrets in environment variables. Do not commit them
+to the repository.
+
+### Google Cloud Configuration
+
+Create an OAuth client with application type **Web application**.
+
+For OAuth Playground testing, add this exact URL to
+**Authorized redirect URIs**:
+
+```text
+https://developers.google.com/oauthplayground
+```
+
+### Generate an ID Token
+
+1. Open https://developers.google.com/oauthplayground.
+2. Open Settings and enable **Use your own OAuth credentials**.
+3. Enter the Client ID and Client Secret for your test application.
+4. Authorize these scopes:
+
+   ```text
+   openid
+   https://www.googleapis.com/auth/userinfo.email
+   https://www.googleapis.com/auth/userinfo.profile
+   ```
+
+5. Sign in with your Google account.
+6. Select **Exchange authorization code for tokens**.
+7. Copy the returned `id_token`.
+
+The credentials used in Playground must match the application's
+configured Google Client ID. Google's default Playground credentials
+produce tokens for a different audience.
+
+For independent local testing, reviewers should configure their own
+Google OAuth client and use the same Client ID in their backend
+environment and Playground.
+
+### Test with Postman
+
+**Method:** POST
+**Authorization:** No Auth
+**Header:** `Content-Type: application/json`
+
+Local URL:
+
+```text
+http://localhost:5000/api/v1/auth/google-login
+```
+
+Deployed URL:
+
+```text
+https://coureir-logistic.vercel.app/api/v1/auth/google-login
+```
+
+Body:
+
+```json
+{
+  "idToken": "PASTE_YOUR_GOOGLE_ID_TOKEN"
+}
+```
+
+Use the JSON field name `idToken`. Send the Google ID token,
+not the Google Client ID, Google access token, or authorization code.
+
+A successful response includes:
+
+```json
+{
+  "success": true,
+  "message": "Logged in with Google",
+  "data": {
+    "user": {},
+    "accessToken": "...",
+    "refreshToken": "..."
+  }
+}
+```
+
+Postman can reuse the returned cookies for protected requests
+on the same host. Application access tokens can also be used
+through Bearer authentication.
+
+### Troubleshooting
+
+- **Invalid Google ID token:** Check token expiry and confirm its
+  `aud` matches the backend's `GOOGLE_CLIENT_ID`.
+- **redirect_uri_mismatch:** Check the exact Playground redirect URI
+  in the OAuth client's configuration.
+- **Account unavailable:** Check whether the account is inactive
+  or soft-deleted.
+- **Local works but deployment fails:** Confirm deployed environment
+  variables and redeploy after changing them.
+
+OAuth Playground is a testing tool. A frontend can obtain Google
+ID tokens through Google Sign-In and submit them to the same endpoint.
+
 
 ---
 
