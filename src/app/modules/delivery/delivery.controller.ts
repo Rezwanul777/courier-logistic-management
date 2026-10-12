@@ -1,24 +1,36 @@
 import { Request, Response } from "express";
 
 import { DeliveryService } from "./delivery.service";
+import { AppError } from "../../utils/AppError";
+import { catchAsync } from "../../utils/catchAsync";
 
-const assignDelivery = async (req: Request, res: Response) => {
-  const result = await DeliveryService.assignDelivery(
-    req.user?.userId as number,
+const assignDelivery = catchAsync(
+  async (req, res) => {
+    const adminId = req.user?.userId;
 
-    Number(req.params.id),
+    if (!adminId) {
+      throw new AppError(
+        401,
+        "Authentication required.",
+      );
+    }
 
-    req.body.courierId,
-  );
+    const result =
+      await DeliveryService.assignDelivery(
+        adminId,
+        Number(req.params.id),
+        req.body.courierId,
+      );
 
-  res.status(201).json({
-    success: true,
+    res.status(201).json({
+      success: true,
+      message:
+        "Delivery courier assigned successfully.",
+      data: result,
+    });
+  },
+);
 
-    message: "Delivery courier assigned",
-
-    data: result,
-  });
-};
 
 const startDelivery = async (req: Request, res: Response) => {
   const result = await DeliveryService.startDelivery(

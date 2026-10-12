@@ -597,15 +597,27 @@ const getShipmentTracking = async (shipmentId: number, userId: number) => {
 };
 
 
+
 const getAdminShipmentById = async (
   shipmentId: number,
 ) => {
+  // ---------------------------------------------
+  // 1. Validate shipment ID
+  // ---------------------------------------------
+
   if (
     !Number.isSafeInteger(shipmentId) ||
     shipmentId <= 0
   ) {
-    throw new AppError(404, "Shipment not found.");
+    throw new AppError(
+      404,
+      "Shipment not found.",
+    );
   }
+
+  // ---------------------------------------------
+  // 2. Retrieve shipment details
+  // ---------------------------------------------
 
   const shipment = await prisma.shipment.findFirst({
     where: {
@@ -614,6 +626,7 @@ const getAdminShipmentById = async (
     },
 
     select: {
+      // Basic shipment information
       id: true,
       trackingCode: true,
       status: true,
@@ -625,6 +638,10 @@ const getAdminShipmentById = async (
       currency: true,
       createdAt: true,
 
+      // -----------------------------------------
+      // Customer information
+      // -----------------------------------------
+
       customer: {
         select: {
           id: true,
@@ -633,6 +650,10 @@ const getAdminShipmentById = async (
           phone: true,
         },
       },
+
+      // -----------------------------------------
+      // Origin hub
+      // -----------------------------------------
 
       originHub: {
         select: {
@@ -643,6 +664,10 @@ const getAdminShipmentById = async (
         },
       },
 
+      // -----------------------------------------
+      // Destination hub
+      // -----------------------------------------
+
       destinationHub: {
         select: {
           id: true,
@@ -651,6 +676,10 @@ const getAdminShipmentById = async (
           address: true,
         },
       },
+
+      // -----------------------------------------
+      // Payment information
+      // -----------------------------------------
 
       payment: {
         select: {
@@ -662,10 +691,18 @@ const getAdminShipmentById = async (
         },
       },
 
+      // -----------------------------------------
+      // Shipment tracking timeline
+      // -----------------------------------------
+
       trackingEvents: {
         orderBy: [
-          { occurredAt: "desc" },
-          { id: "desc" },
+          {
+            occurredAt: "desc",
+          },
+          {
+            id: "desc",
+          },
         ],
 
         select: {
@@ -677,10 +714,18 @@ const getAdminShipmentById = async (
         },
       },
 
+      // -----------------------------------------
+      // Courier task and assignment history
+      // -----------------------------------------
+
       courierTasks: {
         orderBy: [
-          { createdAt: "desc" },
-          { id: "desc" },
+          {
+            createdAt: "desc",
+          },
+          {
+            id: "desc",
+          },
         ],
 
         select: {
@@ -700,8 +745,50 @@ const getAdminShipmentById = async (
           },
         },
       },
+
+      // -----------------------------------------
+      // NEW: Hub transfer history (Step 31H)
+      // -----------------------------------------
+
+      hubTransfers: {
+        orderBy: [
+          {
+            createdAt: "desc",
+          },
+          {
+            id: "desc",
+          },
+        ],
+
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          receivedAt: true,
+
+          // Origin hub of the transfer
+          fromHub: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+
+          // Destination hub of the transfer
+          toHub: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
     },
   });
+
+  // ---------------------------------------------
+  // 3. Handle shipment not found
+  // ---------------------------------------------
 
   if (!shipment) {
     throw new AppError(
@@ -709,6 +796,10 @@ const getAdminShipmentById = async (
       "Shipment not found.",
     );
   }
+
+  // ---------------------------------------------
+  // 4. Return complete Admin shipment details
+  // ---------------------------------------------
 
   return shipment;
 };

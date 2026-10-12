@@ -1,61 +1,90 @@
-import { Request, Response } from "express";
+
+import { catchAsync } from "../../utils/catchAsync";
+import { AppError } from "../../utils/AppError";
 import { HubTransferService } from "./hub-transfer.service";
 
+function getAdminId(
+  userId: number | undefined,
+): number {
+  if (!userId) {
+    throw new AppError(
+      401,
+      "Authentication required.",
+    );
+  }
 
-const originReceive = async (req: Request, res: Response) => {
-  const result = await HubTransferService.originReceive(
-    Number(req.params.id),
+  return userId;
+}
 
-    req.user?.userId as number,
-  );
+// ---------------------------------------------
+// POST /:id/origin-receive
+// ---------------------------------------------
 
-  res.json({
-    success: true,
+const originReceive = catchAsync(
+  async (req, res) => {
+    const adminId = getAdminId(req.user?.userId);
 
-    message: "Shipment received at origin hub",
+    const result =
+      await HubTransferService.originReceive(
+        Number(req.params.id),
+        adminId,
+      );
 
-    data: result,
-  });
-};
+    res.status(200).json({
+      success: true,
+      message: "Shipment received at origin hub.",
+      data: result,
+    });
+  },
+);
 
-const dispatchTransfer = async (req: Request, res: Response) => {
-  const result = await HubTransferService.dispatchTransfer(
-    Number(req.params.id),
+// ---------------------------------------------
+// POST /:id/dispatch
+// ---------------------------------------------
 
-    req.body,
+const dispatchTransfer = catchAsync(
+  async (req, res) => {
+    const adminId = getAdminId(req.user?.userId);
 
-    req.user?.userId as number,
-  );
+    const result =
+      await HubTransferService.dispatchTransfer(
+        Number(req.params.id),
+        req.body,
+        adminId,
+      );
 
-  res.status(201).json({
-    success: true,
+    res.status(201).json({
+      success: true,
+      message: "Shipment dispatched successfully.",
+      data: result,
+    });
+  },
+);
 
-    message: "Shipment transfer created",
+// ---------------------------------------------
+// POST /:id/destination-receive
+// ---------------------------------------------
 
-    data: result,
-  });
-};
+const destinationReceive = catchAsync(
+  async (req, res) => {
+    const adminId = getAdminId(req.user?.userId);
 
-const destinationReceive = async (req: Request, res: Response) => {
-  const result = await HubTransferService.destinationReceive(
-    Number(req.params.id),
+    const result =
+      await HubTransferService.destinationReceive(
+        Number(req.params.id),
+        adminId,
+      );
 
-    req.user?.userId as number,
-  );
-
-  res.json({
-    success: true,
-
-    message: "Shipment received at destination hub",
-
-    data: result,
-  });
-};
+    res.status(200).json({
+      success: true,
+      message: "Shipment received at destination hub.",
+      data: result,
+    });
+  },
+);
 
 export const HubTransferController = {
   originReceive,
-
   dispatchTransfer,
-
   destinationReceive,
 };
