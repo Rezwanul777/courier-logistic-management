@@ -1,29 +1,17 @@
-export interface ICreateShipment {
-  originHubId: number;
 
-  destinationHubId: number;
+import type { z } from "zod";
 
-  description?: string;
+import { ShipmentValidation } from "./shipment.validation";
 
-  weight: number;
+export type IShipmentQuoteInput = z.infer<
+  typeof ShipmentValidation.quoteShipment
+>;
 
-  pickupAddress: any;
+export type ICreateShipment = z.infer<
+  typeof ShipmentValidation.createShipment
+>;
 
-  recipient: any;
+export type IUpdateShipment = z.infer<
+  typeof ShipmentValidation.updateShipment
+>;
 
-  quotedAmountMinor: number;
-
-  currency: string;
-}
-
-export interface IUpdateShipment {
-
-  description?: string;
-
-  weight?: number;
-
-  pickupAddress?: any;
-
-  recipient?: any;
-
-}

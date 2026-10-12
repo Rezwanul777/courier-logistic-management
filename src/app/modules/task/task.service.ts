@@ -1,215 +1,413 @@
+import { z } from "zod";
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
+import type { Prisma } from "../../../generated/prisma/client";
 
 const assignPickup = async (
   adminId: number,
   shipmentId: number,
   courierId: number,
 ) => {
-  const result = await prisma.$transaction(async (tx) => {
-    const shipment = await tx.shipment.findUnique({
-      where: {
-        id: shipmentId,
-      },
-    });
+  if (
+    !Number.isSafeInteger(shipmentId) ||
+    shipmentId <= 0 ||
+    !Number.isSafeInteger(courierId) ||
+    courierId <= 0
+  ) {
+    throw new AppError(400, "Invalid shipment or courier ID.");
+  }
 
-    if (!shipment) {
-      throw new Error("Shipment not found");
-    }
+  return prisma.$transaction(
+    async (tx) => {
+      // 1. Validate shipment.
+      const shipment = await tx.shipment.findFirst({
+        where: {
+          id: shipmentId,
+          deletedAt: null,
+        },
+        select: {
+          id: true,
+          status: true,
+          payment: {
+            select: {
+              status: true,
+            },
+          },
+        },
+      });
 
-    if (shipment.status !== "READY_FOR_PICKUP") {
-      throw new Error("Shipment is not ready for pickup");
-    }
+      if (!shipment) {
+        throw new AppError(404, "Shipment not found.");
+      }
 
-    const courier = await tx.user.findFirst({
-      where: {
-        id: courierId,
+      if (shipment.status !== "READY_FOR_PICKUP") {
+        throw new AppError(
+          409,
+          "This shipment is not available for pickup assignment.",
+        );
+      }
 
-        role: "COURIER",
+      // Pickup is allowed only after the webhook
+      // has verified successful payment.
+      if (shipment.payment?.status !== "PAID") {
+        throw new AppError(
+          409,
+          "Shipment payment must be verified before assigning pickup.",
+        );
+      }
 
-        isActive: true,
+      // 2. Validate the selected courier.
+      const courier = await tx.user.findFirst({
+        where: {
+          id: courierId,
+          role: "COURIER",
+          isActive: true,
+          deletedAt: null,
+        },
+        select: {
+          id: true,
+        },
+      });
 
-        deletedAt: null,
-      },
-    });
+      if (!courier) {
+        throw new AppError(
+          422,
+          "Selected courier is not active or does not exist.",
+        );
+      }
 
-    if (!courier) {
-      throw new Error("Invalid courier");
-    }
+      // 3. Atomically transition the shipment.
+      //
+      // This conditional UPDATE prevents two
+      // concurrent requests from both assigning
+      // the same READY_FOR_PICKUP shipment.
+      const transition = await tx.shipment.updateMany({
+        where: {
+          id: shipmentId,
+          deletedAt: null,
+          status: "READY_FOR_PICKUP",
 
-    const task = await tx.courierTask.create({
-      data: {
-        shipmentId,
+          payment: {
+            is: {
+              status: "PAID",
+            },
+          },
+        },
 
-        courierId,
+        data: {
+          status: "PICKUP_ASSIGNED",
+        },
+      });
 
-        assignedById: adminId,
+      if (transition.count !== 1) {
+        throw new AppError(
+          409,
+          "This shipment was already assigned or its status changed.",
+        );
+      }
 
-        type: "PICKUP",
+      // 4. Create the courier pickup task.
+      const task = await tx.courierTask.create({
+        data: {
+          shipmentId,
+          courierId,
+          assignedById: adminId,
+          type: "PICKUP",
+          status: "ASSIGNED",
+        },
+      });
 
-        status: "ASSIGNED",
-      },
-    });
+      // 5. Record the status transition.
+      await tx.trackingEvent.create({
+        data: {
+          shipmentId,
+          previousStatus: "READY_FOR_PICKUP",
+          newStatus: "PICKUP_ASSIGNED",
+          actorId: adminId,
+          reason: "Courier assigned for pickup",
+        },
+      });
 
-    await tx.shipment.update({
-      where: {
-        id: shipmentId,
-      },
-
-      data: {
-        status: "PICKUP_ASSIGNED",
-      },
-    });
-
-    await tx.trackingEvent.create({
-      data: {
-        shipmentId,
-
-        previousStatus: shipment.status,
-
-        newStatus: "PICKUP_ASSIGNED",
-
-        actorId: adminId,
-
-        reason: "Courier assigned for pickup",
-      },
-    });
-
-    return task;
-  });
-
-  return result;
+      return task;
+    },
+    {
+      timeout: 10_000,
+    },
+  );
 };
 
-const getMyTasks = async (courierId: number) => {
-  return prisma.courierTask.findMany({
-    where: {
-      courierId,
+const courierTaskQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(10000).default(1),
+  type: z.enum(["ALL", "PICKUP", "DELIVERY"]).default("ALL"),
+});
 
-      status: {
-        not: "COMPLETED",
+const courierTaskSelect = {
+  id: true,
+  type: true,
+  status: true,
+  createdAt: true,
+  acceptedAt: true,
+  completedAt: true,
+
+  shipment: {
+    select: {
+      id: true,
+      trackingCode: true,
+      status: true,
+      description: true,
+      weight: true,
+      pickupAddress: true,
+      recipient: true,
+
+      originHub: {
+        select: { name: true },
+      },
+
+      destinationHub: {
+        select: { name: true },
       },
     },
+  },
+} satisfies Prisma.CourierTaskSelect;
 
-    include: {
-      shipment: true,
-    },
+const getMyTasks = async (courierId: number, query: unknown) => {
+  const { page, type } = courierTaskQuerySchema.parse(query);
 
-    orderBy: {
-      createdAt: "desc",
+  const limit = 10;
+
+  const where: Prisma.CourierTaskWhereInput = {
+    courierId,
+    status: {
+      in: ["ASSIGNED", "ACCEPTED"],
     },
-  });
+    ...(type !== "ALL" ? { type } : {}),
+  };
+
+  const [items, total, assigned, accepted, completed] =
+    await prisma.$transaction([
+      prisma.courierTask.findMany({
+        where,
+        select: courierTaskSelect,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+
+      prisma.courierTask.count({ where }),
+
+      prisma.courierTask.count({
+        where: {
+          courierId,
+          status: "ASSIGNED",
+        },
+      }),
+
+      prisma.courierTask.count({
+        where: {
+          courierId,
+          status: "ACCEPTED",
+        },
+      }),
+
+      prisma.courierTask.count({
+        where: {
+          courierId,
+          status: "COMPLETED",
+        },
+      }),
+    ]);
+
+  return {
+    items,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+    summary: {
+      assigned,
+      accepted,
+      completed,
+    },
+  };
 };
 
-const acceptTask = async (taskId: number, courierId: number) => {
+// ---------------------------------------------
+// Courier: individual task
+// ---------------------------------------------
+
+const getMyTaskById = async (taskId: number, courierId: number) => {
+  if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+    throw new AppError(404, "Task not found.");
+  }
+
   const task = await prisma.courierTask.findFirst({
     where: {
       id: taskId,
-
       courierId,
     },
+    select: courierTaskSelect,
   });
 
   if (!task) {
-    throw new Error("Task not found");
+    throw new AppError(404, "Task not found.");
   }
 
-  if (task.status !== "ASSIGNED") {
-    throw new Error("Task already accepted");
+  return task;
+};
+
+// ---------------------------------------------
+// Courier: accept assigned pickup
+// ---------------------------------------------
+
+const acceptTask = async (taskId: number, courierId: number) => {
+  if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+    throw new AppError(404, "Task not found.");
   }
 
-  return prisma.courierTask.update({
+  const updated = await prisma.courierTask.updateMany({
     where: {
       id: taskId,
+      courierId,
+      type: "PICKUP",
+      status: "ASSIGNED",
+      shipment: {
+        is: {
+          status: "PICKUP_ASSIGNED",
+          deletedAt: null,
+        },
+      },
     },
-
     data: {
       status: "ACCEPTED",
-
       acceptedAt: new Date(),
     },
   });
+
+  if (updated.count !== 1) {
+    throw new AppError(
+      409,
+      "Pickup task is unavailable or has already been accepted.",
+    );
+  }
+
+  return getMyTaskById(taskId, courierId);
 };
+
+// ---------------------------------------------
+// Courier: complete accepted pickup
+// ---------------------------------------------
 
 const completePickup = async (
   taskId: number,
   courierId: number,
   proof: string,
 ) => {
+  if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+    throw new AppError(404, "Task not found.");
+  }
+
+  const confirmationNote = proof.trim();
+
+  if (confirmationNote.length < 3 || confirmationNote.length > 500) {
+    throw new AppError(
+      400,
+      "Pickup confirmation note must contain 3 to 500 characters.",
+    );
+  }
+
   return prisma.$transaction(async (tx) => {
     const task = await tx.courierTask.findFirst({
       where: {
         id: taskId,
-
         courierId,
+        type: "PICKUP",
+      },
+      select: {
+        id: true,
+        shipmentId: true,
+        status: true,
       },
     });
 
     if (!task) {
-      throw new Error("Task not found");
+      throw new AppError(404, "Pickup task not found.");
     }
 
     if (task.status !== "ACCEPTED") {
-      throw new Error("Accept task first");
+      throw new AppError(
+        409,
+        "Accept the pickup task before confirming collection.",
+      );
     }
 
-    const shipment = await tx.shipment.findUnique({
-      where: {
-        id: task.shipmentId,
-      },
-    });
-
-    if (!shipment) {
-      throw new Error("Shipment not found");
-    }
-
-    await tx.courierTask.update({
+    // Only one request can complete the task.
+    const taskUpdated = await tx.courierTask.updateMany({
       where: {
         id: taskId,
+        courierId,
+        type: "PICKUP",
+        status: "ACCEPTED",
       },
-
       data: {
         status: "COMPLETED",
-
         completedAt: new Date(),
-
-        proof,
+        proof: confirmationNote,
       },
     });
 
-    await tx.shipment.update({
-      where: {
-        id: shipment.id,
-      },
+    if (taskUpdated.count !== 1) {
+      throw new AppError(
+        409,
+        "This pickup task was already completed or changed.",
+      );
+    }
 
+    // Only PICKUP_ASSIGNED shipments can
+    // advance to PICKED_UP.
+    const shipmentUpdated = await tx.shipment.updateMany({
+      where: {
+        id: task.shipmentId,
+        status: "PICKUP_ASSIGNED",
+        deletedAt: null,
+      },
       data: {
         status: "PICKED_UP",
       },
     });
 
+    if (shipmentUpdated.count !== 1) {
+      throw new AppError(
+        409,
+        "Shipment status changed. Pickup could not be confirmed.",
+      );
+    }
+
     await tx.trackingEvent.create({
       data: {
-        shipmentId: shipment.id,
-
-        previousStatus: shipment.status,
-
+        shipmentId: task.shipmentId,
+        previousStatus: "PICKUP_ASSIGNED",
         newStatus: "PICKED_UP",
-
         actorId: courierId,
-
-        reason: "Courier picked up parcel",
+        reason: "Courier collected the parcel",
       },
     });
 
     return {
-      message: "Pickup completed",
+      taskId: task.id,
+      shipmentId: task.shipmentId,
+      shipmentStatus: "PICKED_UP",
     };
   });
 };
+
 
 export const TaskService = {
   assignPickup,
 
   getMyTasks,
+  getMyTaskById,
 
   acceptTask,
 

@@ -38,7 +38,9 @@ import { ShipmentValidation } from "./shipment.validation";
 
 export const ShipmentRoutes = Router();
 
-ShipmentRoutes.use(auth());
+
+ShipmentRoutes.use(auth("CUSTOMER"));
+
 
 ShipmentRoutes.post(
   "/",
@@ -47,10 +49,19 @@ ShipmentRoutes.post(
 );
 
 ShipmentRoutes.get("/my", ShipmentController.getMyShipments);
+ShipmentRoutes.post(
+  "/quote",
+  validateRequest(ShipmentValidation.quoteShipment),
+  ShipmentController.quoteShipment,
+);
 
 ShipmentRoutes.get("/:id", ShipmentController.getShipmentById);
 
-ShipmentRoutes.patch("/:id", ShipmentController.updateShipment);
+ShipmentRoutes.patch(
+  "/:id",
+  validateRequest(ShipmentValidation.updateShipment),
+  ShipmentController.updateShipment,
+);
 
 ShipmentRoutes.delete("/:id", ShipmentController.deleteShipment);
 
@@ -63,3 +74,15 @@ AdminShipmentRoutes.use(auth("ADMIN"));
 AdminShipmentRoutes.get("/", ShipmentController.getAllShipments);
 ShipmentRoutes.get(
   "/:id/tracking", ShipmentController.getShipmentTracking,);
+
+  AdminShipmentRoutes.get(
+  "/",
+  ShipmentController.getAllShipments,
+);
+
+
+AdminShipmentRoutes.get(
+  "/:id",
+  ShipmentController.getAdminShipmentById,
+);
+

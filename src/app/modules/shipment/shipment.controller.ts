@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
 import { ShipmentService } from "./shipment.service";
+import { calculateShipmentQuote } from "./shipment-pricing";
+import { catchAsync } from "../../utils/catchAsync";
+
+
+
 
 const createShipment = async (req: Request, res: Response) => {
   const userId = req.user?.userId as number;
@@ -127,6 +132,42 @@ const getShipmentTracking = async (req: Request, res: Response) => {
   });
 };
 
+
+const quoteShipment = async (
+  req: Request,
+  res: Response,
+) => {
+  const quote = await calculateShipmentQuote(
+    req.body,
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Shipping quote calculated successfully",
+    data: quote,
+  });
+};
+
+
+const getAdminShipmentById = catchAsync(
+  async (req, res) => {
+    const shipmentId = Number(req.params.id);
+
+    const result =
+      await ShipmentService.getAdminShipmentById(
+        shipmentId,
+      );
+
+    res.status(200).json({
+      success: true,
+      message: "Admin shipment details retrieved",
+      data: result,
+    });
+  },
+);
+
+
+
 export const ShipmentController = {
   createShipment,
 
@@ -137,4 +178,6 @@ export const ShipmentController = {
   getTrackingHistory,
   getAllShipments,
   getShipmentTracking,
+  quoteShipment,
+  getAdminShipmentById,
 };

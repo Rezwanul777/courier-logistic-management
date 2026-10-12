@@ -1,77 +1,118 @@
 import { Request, Response } from "express";
 
 import { TaskService } from "./task.service";
+import { catchAsync } from "../../utils/catchAsync";
+import { AppError } from "../../utils/AppError";
 
-const assignPickup = async (req: Request, res: Response) => {
-  const result = await TaskService.assignPickup(
-    req.user?.userId as number,
 
-    req.body.shipmentId,
+// ---------------------------------------------
+// ADMIN: assign pickup courier
+// ---------------------------------------------
 
-    req.body.courierId,
-  );
+const assignPickup = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await TaskService.assignPickup(
+      req.user!.userId,
+      req.body.shipmentId,
+      req.body.courierId,
+    );
 
-  res.status(201).json({
-    success: true,
+    res.status(201).json({
+      success: true,
+      message: "Pickup courier assigned successfully.",
+      data: result,
+    });
+  },
+);
 
-    message: "Courier assigned",
 
-    data: result,
-  });
-};
 
-const getMyTasks = async (req: Request, res: Response) => {
-  const result = await TaskService.getMyTasks(req.user?.userId as number);
+// ---------------------------------------------
+// COURIER: task list
+// ---------------------------------------------
 
-  res.json({
-    success: true,
+const getMyTasks = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await TaskService.getMyTasks(
+      req.user!.userId,
+      req.query,
+    );
 
-    message: "Tasks retrieved",
+    res.status(200).json({
+      success: true,
+      message: "Courier tasks retrieved successfully.",
+      data: result,
+    });
+  },
+);
 
-    data: result,
-  });
-};
+// ---------------------------------------------
+// COURIER: task details
+// ---------------------------------------------
 
-const acceptTask = async (req: Request, res: Response) => {
-  const result = await TaskService.acceptTask(
-    Number(req.params.id),
+const getMyTaskById = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await TaskService.getMyTaskById(
+      Number(req.params.id),
+      req.user!.userId,
+    );
 
-    req.user?.userId as number,
-  );
+    res.status(200).json({
+      success: true,
+      message: "Courier task retrieved successfully.",
+      data: result,
+    });
+  },
+);
 
-  res.json({
-    success: true,
 
-    message: "Task accepted",
+// ---------------------------------------------
+// COURIER: accept pickup
+// ---------------------------------------------
 
-    data: result,
-  });
-};
+const acceptTask = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await TaskService.acceptTask(
+      Number(req.params.id),
+      req.user!.userId,
+    );
 
-const completePickup = async (req: Request, res: Response) => {
-  const result = await TaskService.completePickup(
-    Number(req.params.id),
+    res.status(200).json({
+      success: true,
+      message: "Pickup task accepted successfully.",
+      data: result,
+    });
+  },
+);
 
-    req.user?.userId as number,
+// ---------------------------------------------
+// COURIER: complete pickup
+// ---------------------------------------------
 
-    req.body.proof,
-  );
+const completePickup = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await TaskService.completePickup(
+      Number(req.params.id),
+      req.user!.userId,
+      req.body.proof,
+    );
 
-  res.json({
-    success: true,
-
-    message: "Pickup completed",
-
-    data: result,
-  });
-};
+    res.status(200).json({
+      success: true,
+      message: "Parcel pickup confirmed successfully.",
+      data: result,
+    });
+  },
+);
 
 export const TaskController = {
   assignPickup,
 
   getMyTasks,
+  getMyTaskById,
 
   acceptTask,
 
   completePickup,
+  
 };

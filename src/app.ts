@@ -28,6 +28,9 @@ import { AdminTaskRoutes, TaskRoutes } from "./app/modules/task/task.route";
 import { HubTransferRoutes } from "./app/modules/hub-transfer/hub-transfer.route";
 import { AdminDeliveryRoutes, DeliveryRoutes } from "./app/modules/delivery/delivery.route";
 
+import { AdminOverviewRoutes } from "./app/modules/admin-overview/admin-overview.route";
+
+
 const app: Application = express();
 
 app.post(
@@ -66,15 +69,15 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware to parse JSON bodies
 app.use(express.json({ limit: "32kb" }));
 app.use(cookieParser());
-app.use((req,res,next)=>{
- console.log(
-   "REQUEST",
-   req.method,
-   req.path,
-   req.body
- );
- next();
-});
+// app.use((req,res,next)=>{
+//  console.log(
+//    "REQUEST",
+//    req.method,
+//    req.path,
+//    req.body
+//  );
+//  next();
+// });
 //app.use(checkRequestOrigin);
 
 //requirement of all routes to be prefixed with /api/v1
@@ -95,7 +98,11 @@ app.use("/api/v1/admin/tasks", AdminTaskRoutes);
 app.use("/api/v1/tasks", TaskRoutes);
 app.use("/api/v1/admin/hub-transfers", HubTransferRoutes);
 app.use("/api/v1/admin", AdminDeliveryRoutes);
+app.use("/api/v1/admin/overview", AdminOverviewRoutes);
 app.use("/api/v1", DeliveryRoutes);
+
+
+
 
 // Basic rout
 app.get("/", async (req: Request, res: Response) => {

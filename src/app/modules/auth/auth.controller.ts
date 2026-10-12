@@ -17,16 +17,43 @@ const registerCustomer = catchAsync(async (req, res) => {
     data: null,
   });
 });
+// const verifyEmail = catchAsync(async (req, res) => {
+//   const data = await AuthService.verifyEmail(req.body);
+//   setAuthCookies(res, data);
+//   sendResponse(res, {
+//     statusCode: 201,
+//     success: true,
+//     message: "Email verified",
+//     data,
+//   });
+// });
+
 const verifyEmail = catchAsync(async (req, res) => {
+  const startedAt = Date.now();
+
+  // Never log emails, OTPs, passwords, or tokens.
+  console.info("[Verify Email] Request received");
+
   const data = await AuthService.verifyEmail(req.body);
+
+  console.info("[Verify Email] User/session processed", {
+    durationMs: Date.now() - startedAt,
+  });
+
   setAuthCookies(res, data);
+
+  console.info("[Verify Email] Cookies prepared");
+
   sendResponse(res, {
     statusCode: 201,
     success: true,
     message: "Email verified",
     data,
   });
+
+  console.info("[Verify Email] Response sent");
 });
+
 const loginUser = catchAsync(async (req, res) => {
   const data = await AuthService.loginUser(req.body);
   setAuthCookies(res, data);
