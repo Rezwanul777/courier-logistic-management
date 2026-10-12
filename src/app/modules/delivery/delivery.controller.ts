@@ -32,39 +32,37 @@ const assignDelivery = catchAsync(
 );
 
 
-const startDelivery = async (req: Request, res: Response) => {
-  const result = await DeliveryService.startDelivery(
-    Number(req.params.id),
+const startDelivery = catchAsync(
+  async (req, res) => {
+    const result = await DeliveryService.startDelivery(
+      Number(req.params.id),
+      req.user!.userId,
+    );
 
-    req.user?.userId as number,
-  );
+    res.status(200).json({
+      success: true,
+      message: "Delivery task accepted successfully.",
+      data: result,
+    });
+  },
+);
 
-  res.json({
-    success: true,
+const completeDelivery = catchAsync(
+  async (req, res) => {
+    const result =
+      await DeliveryService.completeDelivery(
+        Number(req.params.id),
+        req.user!.userId,
+        req.body,
+      );
 
-    message: "Delivery started",
-
-    data: result,
-  });
-};
-
-const completeDelivery = async (req: Request, res: Response) => {
-  const result = await DeliveryService.completeDelivery(
-    Number(req.params.id),
-
-    req.user?.userId as number,
-
-    req.body,
-  );
-
-  res.json({
-    success: true,
-
-    message: "Shipment delivered",
-
-    data: result,
-  });
-};
+    res.status(200).json({
+      success: true,
+      message: "Shipment delivered successfully.",
+      data: result,
+    });
+  },
+);
 
 export const DeliveryController = {
   assignDelivery,

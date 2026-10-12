@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
+import { IDeliverShipment } from "./delivery.interface";
 
 
 const assignDelivery = async (
@@ -170,118 +171,183 @@ const assignDelivery = async (
 
 const startDelivery = async (
   taskId: number,
-
   courierId: number,
 ) => {
-  const task = await prisma.courierTask.findFirst({
+  if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+    throw new AppError(404, "Delivery task not found.");
+  }
+
+  const updated = await prisma.courierTask.updateMany({
     where: {
       id: taskId,
-
       courierId,
-
       type: "DELIVERY",
+      status: "ASSIGNED",
+      shipment: {
+        is: {
+          status: "OUT_FOR_DELIVERY",
+          deletedAt: null,
+        },
+      },
+    },
+    data: {
+      status: "ACCEPTED",
+      acceptedAt: new Date(),
     },
   });
 
-  if (!task) {
-    throw new Error("Delivery task not found");
+  if (updated.count !== 1) {
+    throw new AppError(
+      409,
+      "Delivery task is unavailable or already accepted.",
+    );
   }
 
-  if (task.status !== "ASSIGNED") {
-    throw new Error("Task already started");
-  }
-
-  return prisma.courierTask.update({
+  return prisma.courierTask.findFirst({
     where: {
       id: taskId,
+      courierId,
+      type: "DELIVERY",
     },
-
-    data: {
-      status: "ACCEPTED",
-
-      acceptedAt: new Date(),
+    select: {
+      id: true,
+      shipmentId: true,
+      type: true,
+      status: true,
+      acceptedAt: true,
     },
   });
 };
 
+// Confirm the parcel was delivered
 const completeDelivery = async (
   taskId: number,
-
   courierId: number,
-
-  payload: any,
+  payload: IDeliverShipment,
 ) => {
-  return prisma.$transaction(async (tx) => {
-    const task = await tx.courierTask.findFirst({
-      where: {
-        id: taskId,
+  if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+    throw new AppError(404, "Delivery task not found.");
+  }
 
-        courierId,
+  const recipientName = payload.recipientName.trim();
+  const proof = payload.proof.trim();
 
-        type: "DELIVERY",
-      },
-    });
+  if (recipientName.length < 3 || recipientName.length > 100) {
+    throw new AppError(
+      400,
+      "Recipient name must contain 3 to 100 characters.",
+    );
+  }
 
-    if (!task) {
-      throw new Error("Delivery task not found");
-    }
+  if (proof.length < 3 || proof.length > 500) {
+    throw new AppError(
+      400,
+      "Delivery proof must contain 3 to 500 characters.",
+    );
+  }
 
-    if (task.status !== "ACCEPTED") {
-      throw new Error("Start delivery first");
-    }
+  return prisma.$transaction(
+    async (tx) => {
+      const task = await tx.courierTask.findFirst({
+        where: {
+          id: taskId,
+          courierId,
+          type: "DELIVERY",
+        },
+        select: {
+          id: true,
+          shipmentId: true,
+          status: true,
+        },
+      });
 
-    const shipment = await tx.shipment.findUnique({
-      where: {
-        id: task.shipmentId,
-      },
-    });
+      if (!task) {
+        throw new AppError(
+          404,
+          "Delivery task not found.",
+        );
+      }
 
-    if (!shipment) {
-      throw new Error("Shipment not found");
-    }
+      if (task.status !== "ACCEPTED") {
+        throw new AppError(
+          409,
+          "Accept the delivery task before confirming delivery.",
+        );
+      }
 
-    await tx.courierTask.update({
-      where: {
-        id: taskId,
-      },
+      const completedAt = new Date();
 
-      data: {
-        status: "COMPLETED",
+      // Update the task only if it remains eligible.
+      const taskUpdated = await tx.courierTask.updateMany({
+        where: {
+          id: taskId,
+          courierId,
+          type: "DELIVERY",
+          status: "ACCEPTED",
+          shipment: {
+            is: {
+              status: "OUT_FOR_DELIVERY",
+              deletedAt: null,
+            },
+          },
+        },
+        data: {
+          status: "COMPLETED",
+          completedAt,
+          proof,
+        },
+      });
 
-        completedAt: new Date(),
+      if (taskUpdated.count !== 1) {
+        throw new AppError(
+          409,
+          "Delivery task has already been completed or changed.",
+        );
+      }
 
-        proof: payload.proof,
-      },
-    });
+      // Safely move the shipment to DELIVERED.
+      const shipmentUpdated =
+        await tx.shipment.updateMany({
+          where: {
+            id: task.shipmentId,
+            deletedAt: null,
+            status: "OUT_FOR_DELIVERY",
+          },
+          data: {
+            status: "DELIVERED",
+          },
+        });
 
-    await tx.shipment.update({
-      where: {
-        id: shipment.id,
-      },
+      if (shipmentUpdated.count !== 1) {
+        throw new AppError(
+          409,
+          "Shipment status changed. Delivery could not be confirmed.",
+        );
+      }
 
-      data: {
-        status: "DELIVERED",
-      },
-    });
+      // Record the shipment tracking event.
+      await tx.trackingEvent.create({
+        data: {
+          shipmentId: task.shipmentId,
+          previousStatus: "OUT_FOR_DELIVERY",
+          newStatus: "DELIVERED",
+          actorId: courierId,
+          reason: `Delivered to ${recipientName}`,
+        },
+      });
 
-    await tx.trackingEvent.create({
-      data: {
-        shipmentId: shipment.id,
-
-        previousStatus: shipment.status,
-
-        newStatus: "DELIVERED",
-
-        actorId: courierId,
-
-        reason: `Delivered to ${payload.recipientName}`,
-      },
-    });
-
-    return {
-      message: "Shipment delivered successfully",
-    };
-  });
+      return {
+        taskId: task.id,
+        shipmentId: task.shipmentId,
+        taskStatus: "COMPLETED",
+        shipmentStatus: "DELIVERED",
+        completedAt,
+      };
+    },
+    {
+      timeout: 10_000,
+    },
+  );
 };
 
 export const DeliveryService = {
