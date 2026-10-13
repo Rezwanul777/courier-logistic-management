@@ -1,115 +1,61 @@
-import { Request, Response } from "express";
+
+import { catchAsync } from "../../utils/catchAsync";
 import { ZoneService } from "./zone.service";
 
-
-const createZone = async(
- req:Request,
- res:Response
-)=>{
-
-const result =
- await ZoneService.createZone(
-  req.body
- );
-
-
-res.status(201).json({
- success:true,
- message:"Zone created successfully",
- data:result,
+const createZone = catchAsync(async (req, res) => {
+  const data = await ZoneService.createZone(req.body);
+  res.status(201).json({
+    success: true,
+    message: "Zone created successfully.",
+    data,
+  });
 });
 
-};
-
-
-
-const getZones =
-async(req:Request,res:Response)=>{
-
-
-const result =
- await ZoneService.getZones();
-
-
-res.json({
- success:true,
- message:"Zones retrieved",
- data:result,
+const getZones = catchAsync(async (_req, res) => {
+  const data = await ZoneService.getZones();
+  res.status(200).json({
+    success: true,
+    message: "Zones retrieved successfully.",
+    data,
+  });
 });
 
-
-};
-
-
-
-const getAdminZones =
-async(req:Request,res:Response)=>{
-
-
-const result =
- await ZoneService.getAdminZones(
-  req.query
- );
-
-
-res.json({
- success:true,
- message:"Zones retrieved",
- data:result,
+const getAdminZones = catchAsync(async (req, res) => {
+  const data = await ZoneService.getAdminZones(req.query);
+  res.status(200).json({
+    success: true,
+    message: "Admin zones retrieved successfully.",
+    data,
+  });
 });
 
-
-};
-
-
-
-const updateZone =
-async(req:Request,res:Response)=>{
-
-
-const result =
- await ZoneService.updateZone(
- Number(req.params.id),
- req.body
- );
-
-
-res.json({
- success:true,
- message:"Zone updated",
- data:result,
+const updateZone = catchAsync(async (req, res) => {
+  const data = await ZoneService.updateZone(
+    Number(req.params.id),
+    req.body,
+  );
+  res.status(200).json({
+    success: true,
+    message: "Zone updated successfully.",
+    data,
+  });
 });
 
-
-};
-
-
-
-const deleteZone =
-async(req:Request,res:Response)=>{
-
-
-const result =
- await ZoneService.deleteZone(
- Number(req.params.id)
- );
-
-
-res.json({
- success:true,
- message:"Zone deleted",
- data:result,
+const deleteZone = catchAsync(async (req, res) => {
+  const data = await ZoneService.deleteZone(
+    Number(req.params.id),
+  );
+  res.status(200).json({
+    success: true,
+    message: "Zone archived successfully.",
+    data,
+  });
 });
 
-
-};
-
-
-
-export const ZoneController={
- createZone,
- getZones,
- getAdminZones,
- updateZone,
- deleteZone,
+export const ZoneController = {
+  createZone,
+  getZones,
+  getAdminZones,
+  updateZone,
+  deleteZone,
 };

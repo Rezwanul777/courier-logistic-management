@@ -1,47 +1,28 @@
+
 import { z } from "zod";
 
+const codeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .min(2)
+  .max(20)
+  .regex(/^[A-Z0-9-]+$/, "Use letters, numbers and hyphens.");
 
-const createHub = z.object({
+const nameSchema = z.string().trim().min(3).max(100);
+const addressSchema = z.string().trim().min(5).max(255);
 
-  code: z
-    .string()
-    .min(2)
-    .max(20),
-
-  name: z
-    .string()
-    .min(3)
-    .max(100),
-
-  address: z
-    .string()
-    .min(5)
-    .max(255),
-
-  zoneId: z
-    .number()
-    .int()
-    .positive(),
-
+const createHub = z.strictObject({
+  code: codeSchema,
+  name: nameSchema,
+  address: addressSchema,
+  zoneId: z.number().int().positive(),
 });
 
-
-const updateHub = z.object({
-
-  name: z
-    .string()
-    .min(3)
-    .max(100)
-    .optional(),
-
-  address: z
-    .string()
-    .min(5)
-    .max(255)
-    .optional(),
-
+const updateHub = z.strictObject({
+  name: nameSchema,
+  address: addressSchema,
 });
-
 
 export const HubValidation = {
   createHub,

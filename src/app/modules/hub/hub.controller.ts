@@ -1,180 +1,61 @@
-import { Request, Response } from "express";
+
+import { catchAsync } from "../../utils/catchAsync";
 import { HubService } from "./hub.service";
 
-
-
-const createHub =
-async(
-req:Request,
-res:Response
-)=>{
-
-
-const result =
-await HubService.createHub(
- req.body
-);
-
-
-res.status(201).json({
-
- success:true,
-
- message:"Hub created successfully",
-
- data:result,
-
+const createHub = catchAsync(async (req, res) => {
+  const data = await HubService.createHub(req.body);
+  res.status(201).json({
+    success: true,
+    message: "Hub created successfully.",
+    data,
+  });
 });
 
-
-};
-
-
-
-
-
-const getActiveHubs =
-async(
-req:Request,
-res:Response
-)=>{
-
-
-const result =
-await HubService.getActiveHubs();
-
-
-res.json({
-
- success:true,
-
- message:"Hubs retrieved",
-
- data:result,
-
+const getActiveHubs = catchAsync(async (_req, res) => {
+  const data = await HubService.getActiveHubs();
+  res.status(200).json({
+    success: true,
+    message: "Hubs retrieved successfully.",
+    data,
+  });
 });
 
-
-};
-
-
-
-
-
-
-
-const getAdminHubs =
-async(
-req:Request,
-res:Response
-)=>{
-
-
-const result =
-await HubService.getAdminHubs(
- req.query
-);
-
-
-
-res.json({
-
- success:true,
-
- message:"Admin hubs retrieved",
-
- data:result,
-
+const getAdminHubs = catchAsync(async (req, res) => {
+  const data = await HubService.getAdminHubs(req.query);
+  res.status(200).json({
+    success: true,
+    message: "Admin hubs retrieved successfully.",
+    data,
+  });
 });
 
-
-};
-
-
-
-
-
-
-
-const updateHub =
-async(
-req:Request,
-res:Response
-)=>{
-
-
-const result =
-await HubService.updateHub(
-
- Number(req.params.id),
-
- req.body
-
-);
-
-
-
-res.json({
-
- success:true,
-
- message:"Hub updated",
-
- data:result,
-
+const updateHub = catchAsync(async (req, res) => {
+  const data = await HubService.updateHub(
+    Number(req.params.id),
+    req.body,
+  );
+  res.status(200).json({
+    success: true,
+    message: "Hub updated successfully.",
+    data,
+  });
 });
 
-
-};
-
-
-
-
-
-
-const deleteHub =
-async(
-req:Request,
-res:Response
-)=>{
-
-
-const result =
-await HubService.deleteHub(
-
- Number(req.params.id)
-
-);
-
-
-
-res.json({
-
- success:true,
-
- message:"Hub deleted",
-
- data:result,
-
+const deleteHub = catchAsync(async (req, res) => {
+  const data = await HubService.deleteHub(
+    Number(req.params.id),
+  );
+  res.status(200).json({
+    success: true,
+    message: "Hub archived successfully.",
+    data,
+  });
 });
 
-
-};
-
-
-
-
-
-export const HubController={
-
- createHub,
-
- getActiveHubs,
-
- getAdminHubs,
-
- updateHub,
-
- deleteHub,
-
+export const HubController = {
+  createHub,
+  getActiveHubs,
+  getAdminHubs,
+  updateHub,
+  deleteHub,
 };

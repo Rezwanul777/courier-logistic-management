@@ -1,65 +1,48 @@
-import {z} from "zod";
 
+import { z } from "zod";
 
+const amount = z.number().int().positive();
 
+const createRateCard = z
+  .strictObject({
+    originZoneId: z.number().int().positive(),
+    destinationZoneId: z.number().int().positive(),
 
+    weightFrom: z.number().finite().min(0),
+    weightTo: z.number().finite().positive(),
 
-const createRateCard = z.object({
+    baseAmountMinor: amount,
 
-  originZoneId:z.number()
-    .int()
-    .positive(),
+    currency: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z]{3}$/, "Use a three-letter currency code."),
 
+    isActive: z.boolean().optional().default(true),
+  })
+  .refine(
+    (data) => data.weightTo > data.weightFrom,
+    {
+      path: ["weightTo"],
+      message: "Maximum weight must exceed minimum weight.",
+    },
+  );
 
-  destinationZoneId:z.number()
-    .int()
-    .positive(),
+const updateRateCard = z
+  .strictObject({
+    baseAmountMinor: amount.optional(),
+    isActive: z.boolean().optional(),
+  })
+  .refine(
+    (data) =>
+      data.baseAmountMinor !== undefined ||
+      data.isActive !== undefined,
+    { message: "Provide a rate or status to update." },
+  );
 
-
-  weightFrom:z
-    .number()
-    .min(0),
-
-
-  weightTo:z
-    .number()
-    .positive(),
-
-
-  baseAmountMinor:z
-    .number()
-    .int()
-    .positive(),
-
-
-  currency:z
-    .string()
-    .min(3)
-    .max(10),
-
-});
-
-
-const updateRateCard=z.object({
-
-  baseAmountMinor:z
-    .number()
-    .int()
-    .positive()
-    .optional(),
-
-
-  isActive:z
-    .boolean()
-    .optional(),
-
-});
-
-
-export const RateCardValidation={
+export const RateCardValidation = {
   createRateCard,
   updateRateCard,
 };
-
-
 

@@ -1,27 +1,24 @@
+
 import { z } from "zod";
 
+const codeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .min(2)
+  .max(20)
+  .regex(/^[A-Z0-9-]+$/, "Use letters, numbers and hyphens.");
 
-const createZone = z.object({
-  code: z
-    .string()
-    .min(2)
-    .max(20),
+const nameSchema = z.string().trim().min(3).max(100);
 
-  name: z
-    .string()
-    .min(3)
-    .max(100),
+const createZone = z.strictObject({
+  code: codeSchema,
+  name: nameSchema,
 });
 
-
-const updateZone = z.object({
-  name: z
-    .string()
-    .min(3)
-    .max(100)
-    .optional(),
+const updateZone = z.strictObject({
+  name: nameSchema,
 });
-
 
 export const ZoneValidation = {
   createZone,
