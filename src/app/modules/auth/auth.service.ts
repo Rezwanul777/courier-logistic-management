@@ -28,6 +28,10 @@ import type {
 import { AuthUtils } from "./auth.utils";
 import { googleClient } from "../../utils/google";
 
+import { Prisma } from "../../../generated/prisma/client";
+
+
+
 const otpKey = (email: string) => `courier:register:${email}`;
 const attemptsKey = (email: string) => `courier:register:attempts:${email}`;
 const hash = (value: string) =>
@@ -260,125 +264,156 @@ async function login(input: ILoginUserPayload) {
 //   return user;
 // };
 
-async function googleLogin(input: IGoogleLoginPayload): Promise<IAuthResponse> {
+
+async function googleLogin(
+  input: IGoogleLoginPayload,
+): Promise<IAuthResponse> {
+  // 1. Check configuration.
   if (!config.google_client_id) {
-    throw new AppError(503, "Google login is not configured");
+    throw new AppError(
+      503,
+      "Google login is not configured.",
+    );
   }
 
-let payload: TokenPayload | undefined;
+  // 2. Verify Google's signed ID token.
+  let payload: TokenPayload | undefined;
 
   try {
     const ticket = await googleClient.verifyIdToken({
       idToken: input.idToken,
-
       audience: config.google_client_id,
     });
 
     payload = ticket.getPayload();
   } catch {
-    throw new AppError(401, "Invalid Google ID token");
+    throw new AppError(
+      401,
+      "Invalid or expired Google ID token.",
+    );
   }
 
-  if (!payload || !payload.email || !payload.email_verified) {
-    throw new AppError(401, "Google email verification failed");
+  if (
+    !payload?.sub ||
+    !payload.email ||
+    payload.email_verified !== true
+  ) {
+    throw new AppError(
+      401,
+      "A verified Google account is required.",
+    );
   }
 
+  const googleId = payload.sub;
   const email = payload.email.trim().toLowerCase();
 
+  // 3. Returning Google users must match
+  //    their original Google account ID.
   let user = await prisma.user.findUnique({
     where: {
-      email,
+      googleId,
     },
   });
-
-  // if (!user) {
-  //   user = await prisma.user.create({
-  //     data: {
-  //       email,
-
-  //       name: payload.name ?? email.split("@")[0],
-
-  //       googleId: payload.sub,
-
-  //       authProvider: "GOOGLE",
-
-  //       emailVerified: true,
-
-  //       role: Role.CUSTOMER,
-
-  //       isActive: true,
-  //     },
-  //   });
-  // }
 
   if (!user) {
+    // 4. Do not automatically link an existing
+    // password, Courier, or Admin account.
+    const existingEmail =
+      await prisma.user.findUnique({
+        where: {
+          email,
+        },
 
-  user = await prisma.user.create({
+        select: {
+          id: true,
+        },
+      });
 
-    data: {
+    if (existingEmail) {
+      throw new AppError(
+        409,
+        "This email already has an account. Please sign in using its existing method.",
+      );
+    }
 
-      email,
+    // 5. Create only CUSTOMER accounts.
+    try {
+      user = await prisma.user.create({
+        data: {
+          email,
 
-      name: payload.name ?? email.split("@")[0],
+          name:
+            payload.name?.trim() ||
+            email.split("@")[0],
 
-      googleId: payload.sub,
+          googleId,
 
-      authProvider: "GOOGLE",
+          authProvider: "GOOGLE",
 
-      emailVerified: true,
+          emailVerified: true,
+          isActive: true,
 
-      role: Role.CUSTOMER,
+          role: Role.CUSTOMER,
+        },
+      });
+    } catch (error: unknown) {
+      // Handle concurrent sign-ups safely.
+      if (
+        error instanceof
+          Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new AppError(
+          409,
+          "A matching account already exists. Please try signing in again.",
+        );
+      }
 
-      isActive: true,
-
-    },
-
-  });
-
-
-} else if (!user.googleId) {
-
-
-  user = await prisma.user.update({
-
-    where: {
-      id: user.id,
-    },
-
-    data: {
-
-      googleId: payload.sub,
-
-      authProvider: "GOOGLE",
-
-      emailVerified: true,
-
-    },
-
-  });
-
-}
-
-  if (!user.isActive || user.deletedAt) {
-    throw new AppError(403, "Account unavailable");
+      throw error;
+    }
   }
+
+  // 6. Enforce both identity and Customer role.
+  if (
+    user.googleId !== googleId ||
+    user.email !== email ||
+    user.role !== Role.CUSTOMER
+  ) {
+    throw new AppError(
+      403,
+      "This Google account cannot access the customer workspace.",
+    );
+  }
+
+  // 7. Respect account restrictions.
+  if (
+    !user.isActive ||
+    user.deletedAt ||
+    !user.emailVerified
+  ) {
+    throw new AppError(
+      403,
+      "Account unavailable.",
+    );
+  }
+
+  // 8. Issue the existing CourierFlow
+  //    access and refresh tokens.
+  const tokens = await issueTokens(user);
 
   return {
     user: {
       id: user.id,
-
       email: user.email,
-
-      name: user.name as string,
-
+      name: user.name || email.split("@")[0],
       role: user.role,
-
       tokenVersion: user.tokenVersion,
     },
 
-    ...(await issueTokens(user)),
+    ...tokens,
   };
 }
+
 async function refresh(refreshToken: string) {
   const verified = jwtUtils.verifyToken(
     refreshToken,
