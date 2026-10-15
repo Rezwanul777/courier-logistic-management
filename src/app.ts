@@ -34,7 +34,7 @@ import { AdminOverviewRoutes } from "./app/modules/admin-overview/admin-overview
 const app: Application = express();
 
 app.post(
-  "https://coureir-logistic.vercel.app/api/v1/payments/webhook",
+  "/api/v1/payments/webhook",
   express.raw({
     type: "application/json",
   }),
