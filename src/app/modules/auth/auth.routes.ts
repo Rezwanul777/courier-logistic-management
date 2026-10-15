@@ -68,4 +68,29 @@ router.post(
 	AuthController.resetPassword,
 );
 
+
+router.get(
+  "/login-methods",
+  auth("CUSTOMER"),
+  AuthController.getLoginMethods,
+);
+
+router.post(
+  "/set-password",
+  auth("CUSTOMER"),
+  limited,
+  validateRequest(AuthValidation.setPassword),
+  AuthController.setPassword,
+);
+
+router.post(
+  "/link-google",
+  auth("CUSTOMER"),
+  limited,
+  validateRequest(AuthValidation.linkGoogle),
+  AuthController.linkGoogle,
+);
+
+
+
 export const AuthRoutes = router;

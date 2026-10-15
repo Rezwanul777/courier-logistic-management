@@ -2,6 +2,7 @@ import {
   createHash,
   createHmac,
   randomInt,
+  randomUUID,
   timingSafeEqual,
 } from "node:crypto";
 import bcrypt from "bcryptjs";
@@ -586,6 +587,297 @@ async function resetPassword(input: IResetPasswordPayload) {
   });
 }
 
+
+// --------------------------------------------
+// Customer account security helpers
+// --------------------------------------------
+
+async function getActiveCustomer(userId: number) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      isActive: true,
+      emailVerified: true,
+      deletedAt: true,
+      passwordHash: true,
+      googleId: true,
+    },
+  });
+
+  if (
+    !user ||
+    user.role !== Role.CUSTOMER ||
+    !user.isActive ||
+    !user.emailVerified ||
+    user.deletedAt
+  ) {
+    throw new AppError(
+      403,
+      "Customer account is unavailable.",
+    );
+  }
+
+  return user;
+}
+
+// Require a recently issued, verified Google
+// credential belonging to this Customer email.
+async function verifyFreshGoogleIdentity(
+  idToken: string,
+  expectedEmail: string,
+): Promise<string> {
+  if (!config.google_client_id) {
+    throw new AppError(
+      503,
+      "Google authentication is unavailable.",
+    );
+  }
+
+  let payload: TokenPayload | undefined;
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: config.google_client_id,
+    });
+
+    payload = ticket.getPayload();
+  } catch {
+    throw new AppError(
+      401,
+      "Google verification failed.",
+    );
+  }
+
+  if (
+    !payload?.sub ||
+    !payload.email ||
+    payload.email_verified !== true ||
+    payload.email.trim().toLowerCase() !==
+      expectedEmail.toLowerCase()
+  ) {
+    throw new AppError(
+      403,
+      "The Google account must match your CourierFlow email.",
+    );
+  }
+
+  const issuedAt = payload.iat;
+  const now = Math.floor(Date.now() / 1000);
+
+  if (
+    typeof issuedAt !== "number" ||
+    issuedAt > now + 60 ||
+    now - issuedAt > 300
+  ) {
+    throw new AppError(
+      401,
+      "Please verify with Google again.",
+    );
+  }
+
+  return payload.sub;
+}
+
+// --------------------------------------------
+// GET /auth/login-methods
+// --------------------------------------------
+
+async function getLoginMethods(userId: number) {
+  const user = await getActiveCustomer(userId);
+
+  return {
+    hasPassword: Boolean(user.passwordHash),
+    hasGoogle: Boolean(user.googleId),
+  };
+}
+
+// --------------------------------------------
+// POST /auth/set-password
+//
+// For Customer accounts first created with
+// Google. The existing Customer ID is retained.
+// --------------------------------------------
+
+async function setPasswordForGoogleCustomer(
+  userId: number,
+  input: {
+    idToken: string;
+    newPassword: string;
+  },
+) {
+  const user = await getActiveCustomer(userId);
+
+  if (!user.googleId) {
+    throw new AppError(
+      409,
+      "No Google account is linked.",
+    );
+  }
+
+  if (user.passwordHash) {
+    throw new AppError(
+      409,
+      "Password login is already enabled.",
+    );
+  }
+
+  const verifiedGoogleId =
+    await verifyFreshGoogleIdentity(
+      input.idToken,
+      user.email,
+    );
+
+  if (verifiedGoogleId !== user.googleId) {
+    throw new AppError(
+      403,
+      "Google identity does not match this account.",
+    );
+  }
+
+  const passwordHash = await bcrypt.hash(
+    input.newPassword,
+    config.bcrypt_salt_rounds ?? 10,
+  );
+
+  await prisma.$transaction(async (tx) => {
+    const updated = await tx.user.updateMany({
+      where: {
+        id: userId,
+        role: Role.CUSTOMER,
+        isActive: true,
+        deletedAt: null,
+        emailVerified: true,
+        googleId: verifiedGoogleId,
+        passwordHash: null,
+      },
+      data: {
+        passwordHash,
+      },
+    });
+
+    if (updated.count !== 1) {
+      throw new AppError(
+        409,
+        "Account changed. Refresh and try again.",
+      );
+    }
+
+    await tx.auditLog.create({
+      data: {
+        actorId: userId,
+        action: "USER_PASSWORD_ENABLED",
+        entityType: "User",
+        entityId: userId,
+        requestId: randomUUID(),
+        after: {
+          passwordLoginEnabled: true,
+        },
+      },
+    });
+  });
+}
+
+// --------------------------------------------
+// POST /auth/link-google
+//
+// For Customers first created with password.
+// Current password + Google proof are required.
+// --------------------------------------------
+
+async function linkGoogleToCustomer(
+  userId: number,
+  input: {
+    idToken: string;
+    password: string;
+  },
+) {
+  const user = await getActiveCustomer(userId);
+
+  if (user.googleId) {
+    throw new AppError(
+      409,
+      "Google login is already enabled.",
+    );
+  }
+
+  if (
+    !user.passwordHash ||
+    !(await bcrypt.compare(
+      input.password,
+      user.passwordHash,
+    ))
+  ) {
+    throw new AppError(
+      401,
+      "Current password is incorrect.",
+    );
+  }
+
+  const googleId = await verifyFreshGoogleIdentity(
+    input.idToken,
+    user.email,
+  );
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const updated = await tx.user.updateMany({
+        where: {
+          id: userId,
+          role: Role.CUSTOMER,
+          isActive: true,
+          deletedAt: null,
+          emailVerified: true,
+          googleId: null,
+          passwordHash: {
+            not: null,
+          },
+        },
+        data: {
+          googleId,
+        },
+      });
+
+      if (updated.count !== 1) {
+        throw new AppError(
+          409,
+          "Account changed. Refresh and try again.",
+        );
+      }
+
+      await tx.auditLog.create({
+        data: {
+          actorId: userId,
+          action: "USER_GOOGLE_LINKED",
+          entityType: "User",
+          entityId: userId,
+          requestId: randomUUID(),
+          after: {
+            googleLoginEnabled: true,
+          },
+        },
+      });
+    });
+  } catch (error: unknown) {
+    if (
+      error instanceof
+        Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new AppError(
+        409,
+        "This Google account is linked to another user.",
+      );
+    }
+
+    throw error;
+  }
+}
+
+
 export const AuthService = {
   forgotPassword,
   resetPassword,
@@ -596,4 +888,7 @@ export const AuthService = {
   refreshToken: refresh,
   logout,
   getMe: me,
+  setPasswordForGoogleCustomer,
+  linkGoogleToCustomer,
+  getLoginMethods,
 };

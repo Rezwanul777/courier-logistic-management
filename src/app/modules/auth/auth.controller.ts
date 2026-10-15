@@ -134,6 +134,71 @@ const resetPassword = catchAsync(async (req, res) => {
     data: null,
   });
 });
+
+
+const getLoginMethods = catchAsync(
+  async (req, res) => {
+    if (!req.user) {
+      throw new AppError(401, "Please sign in.");
+    }
+
+    const data = await AuthService.getLoginMethods(
+      req.user.userId,
+    );
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Login methods retrieved",
+      data,
+    });
+  },
+);
+
+const setPassword = catchAsync(
+  async (req, res) => {
+    if (!req.user) {
+      throw new AppError(401, "Please sign in.");
+    }
+
+    await AuthService.setPasswordForGoogleCustomer(
+      req.user.userId,
+      req.body,
+    );
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Password login enabled",
+      data: null,
+    });
+  },
+);
+
+const linkGoogle = catchAsync(
+  async (req, res) => {
+    if (!req.user) {
+      throw new AppError(401, "Please sign in.");
+    }
+
+    await AuthService.linkGoogleToCustomer(
+      req.user.userId,
+      req.body,
+    );
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Google login enabled",
+      data: null,
+    });
+  },
+);
+
+
+
+
+
 export const AuthController = {
   forgotPassword,
   resetPassword,
@@ -144,4 +209,7 @@ export const AuthController = {
   refreshToken,
   logout,
   getMe,
+  getLoginMethods,
+  setPassword,
+  linkGoogle,
 };

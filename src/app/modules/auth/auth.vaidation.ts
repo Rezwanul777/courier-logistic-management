@@ -45,6 +45,34 @@ const googleLogin = z.object({
 
 });
 
+
+const strongPassword = z
+  .string()
+  .min(6, "Minimum 6 characters required.")
+  .max(72, "Password is too long.")
+  .regex(/[a-z]/, "Include a lowercase letter.")
+  .regex(/[A-Z]/, "Include an uppercase letter.")
+  .regex(/[0-9]/, "Include a number.")
+  .regex(
+    /[^A-Za-z0-9]/,
+    "Include a special character.",
+  )
+  .refine(
+    (value) => Buffer.byteLength(value, "utf8") <= 72,
+    "Password exceeds 72 UTF-8 bytes.",
+  );
+
+const setPassword = z.strictObject({
+  idToken: z.string().min(20),
+  newPassword: strongPassword,
+});
+
+const linkGoogle = z.strictObject({
+  idToken: z.string().min(20),
+  password: z.string().min(6),
+});
+
+
 export const AuthValidation = {
 	forgotPassword: forgotPasswordSchema,
 	resetPassword: resetPasswordSchema,
@@ -54,4 +82,7 @@ export const AuthValidation = {
 	googleLogin: googleLogin,
 	refreshToken: refreshSchema,
 	logout: refreshSchema,
+	setPassword: setPassword,
+	linkGoogle: linkGoogle,
+	
 };
